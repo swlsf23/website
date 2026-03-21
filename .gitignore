@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+
+# Build / cache
+dist/
+dist-ssr/
+*.local
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets (keep .env.example if you add one)
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.idea/
+*.sw?

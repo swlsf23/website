@@ -1,0 +1,239 @@
+.site {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.25rem 2rem;
+  padding: 1rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-logo {
+  font-weight: 600;
+  color: var(--text-h);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.site-logo:hover {
+  text-decoration: underline;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+}
+
+.site-nav a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.site-nav a:hover {
+  color: var(--text-h);
+  text-decoration: underline;
+}
+
+.site-nav a[aria-current='page'] {
+  color: var(--text-h);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-logo[aria-current='page'] {
+  text-decoration: none;
+}
+
+.resume-page {
+  padding-top: 0;
+}
+
+/* One row: downloads only, upper right, above the Resume heading. */
+.resume-page-topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 2rem;
+}
+
+.resume-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.resume-actions--compact .btn {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.btn-primary {
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.btn-primary:hover {
+  background: var(--accent-bg-strong);
+}
+
+.btn-ghost {
+  color: var(--text-h);
+  border-color: var(--border);
+  background: transparent;
+}
+
+.btn-ghost:hover {
+  background: var(--social-bg);
+}
+
+.hero {
+  padding: 2.5rem 0 2rem;
+}
+
+.hero-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.hero-lede {
+  margin: 0;
+  max-width: 38rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 2rem 0 0.5rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+
+.page-lede {
+  margin: 0;
+  max-width: 40rem;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.page-header--resume {
+  padding: 0.5rem 0 0.5rem;
+}
+
+.page-header--resume .page-lede {
+  max-width: none;
+}
+
+.page-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  max-width: 40rem;
+  line-height: 1.65;
+}
+
+.page-list li {
+  margin-bottom: 0.35rem;
+}
+
+.section {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.section h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.section p {
+  margin: 0;
+  max-width: 40rem;
+  line-height: 1.6;
+}
+
+.section-contact a {
+  color: var(--text-h);
+}
+
+.section-contact a:hover {
+  text-decoration: underline;
+}
+
+.site-footer {
+  margin-top: auto;
+  padding: 2rem 0 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .resume-page-topbar {
+    justify-content: flex-start;
+  }
+
+  .resume-actions--compact {
+    width: 100%;
+  }
+
+  .resume-actions--compact .btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
