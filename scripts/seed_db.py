@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "apps" / "api"))
-load_dotenv(ROOT / "apps" / "api" / ".env")
+load_dotenv(ROOT / "apps" / "api" / ".env", override=True)
 
 from app.db import SessionLocal  # noqa: E402
 from app.models import Page  # noqa: E402
