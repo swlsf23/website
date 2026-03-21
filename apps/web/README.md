@@ -1,4 +1,10 @@
-# React + TypeScript + Vite
+# Website frontend (Vite + React + TypeScript)
+
+## Production API URL
+
+Set **`VITE_API_URL`** to your public API origin (no trailing slash) when building for production (see `.env.example`). Leave unset for local dev (Vite proxies `/api` to the API).
+
+## Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

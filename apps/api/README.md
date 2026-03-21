@@ -27,6 +27,7 @@ Always use **`python -m pip`**, not bare **`pip`**, so you hit the venv’s Pyth
 
 1. Create a Postgres database (e.g. `createdb website`).
 2. Copy `.env.example` to `.env` and set `DATABASE_URL`.
+3. For production, set **`CORS_ORIGINS`** to a comma-separated list of browser origins that may call the API (e.g. your CloudFront `https://…` URL). Local Vite URLs are always allowed.
 
 ## Migrate and seed
 

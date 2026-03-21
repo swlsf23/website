@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     )
 
     database_url: str = _DEFAULT_DATABASE_URL
+    # Comma-separated browser origins for production (e.g. https://example.com,https://www.example.com).
+    # Local Vite dev origins are always allowed in addition to this list.
+    cors_origins: str = ""
 
     @field_validator("database_url", mode="before")
     @classmethod

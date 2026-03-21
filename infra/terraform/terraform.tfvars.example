@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars (gitignored) and set a globally unique bucket name.
+aws_region        = "us-east-1"
+spa_bucket_name   = "yourname-website-spa"
+project           = "website"
