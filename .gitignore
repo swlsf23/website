@@ -18,6 +18,9 @@ __pycache__/
 .env.*
 !.env.example
 
+# Résumé phone/email (see content/resume.contact.example.md)
+content/resume.contact.local.md
+
 # Terraform
 .terraform/
 .terraform.lock.hcl

@@ -44,6 +44,19 @@ h1 {
   letter-spacing: -0.02em;
 }
 
+/* Injected under name (see render_resume_pdf.mjs); extra space before tagline / next line */
+.resume-contact {
+  margin-bottom: 1.1rem;
+}
+
+.resume-contact p {
+  margin: 0 0 0.35rem;
+}
+
+.resume-contact p:last-child {
+  margin-bottom: 0;
+}
+
 hr {
   border: none;
   border-top: 1px solid var(--border-hr);
