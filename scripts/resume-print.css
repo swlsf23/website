@@ -1,0 +1,87 @@
+/* Résumé PDF — keep in sync with apps/web/src/index.css (light theme tokens) */
+
+:root {
+  /* Match :root light theme in index.css */
+  --text: #5c5566;
+  --text-h: #0f0d14;
+  --text-muted: #7a7385;
+  --border: #e8e6e3;
+  --border-hr: #c5c0b8;
+  --accent: #6b4ed8;
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+@page {
+  margin: 0.75in;
+  size: letter;
+}
+
+html {
+  font-size: 11.5pt;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-hr);
+  margin: 1.3rem 0 0.5rem;
+  padding: 0;
+  height: 0;
+}
+
+h2 {
+  font-size: 1.42rem;
+  margin: 0 0 0.4rem;
+}
+
+h3 {
+  font-size: 1.12rem;
+  margin: 0.65rem 0 0.25rem;
+}
+
+p {
+  margin: 0 0 0.45rem;
+}
+
+ul,
+ol {
+  margin: 0 0 0.45rem;
+  padding-left: 1.1rem;
+}
+
+li {
+  margin-bottom: 0.2rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+strong {
+  font-weight: 600;
+  color: var(--text-h);
+}

@@ -63,6 +63,21 @@ Open the URL Vite prints (usually `http://localhost:5173`). The dev server proxi
 
 Details: [`apps/web/README.md`](apps/web/README.md)
 
+### 3. Résumé PDF (manual, scriptable)
+
+[`content/resume.md`](content/resume.md) is turned into [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf) with **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling lives in [`scripts/resume-print.css`](scripts/resume-print.css); tweak that file to change typography and layout.
+
+From the **repository root** (installs `apps/web` deps, ensures Chromium for Playwright, then builds the PDF):
+
+```bash
+./generate-resume-pdf.sh
+```
+
+Equivalent (if you prefer `cd` yourself): `cd apps/web && npm install && npx playwright install chromium && npm run resume:pdf`.
+
+Output: `apps/web/public/resume.pdf` (served as `/resume.pdf` after deploy if you ship `public/`). The same steps fit **CI** later (no Pandoc/WeasyPrint).
+
+
 ---
 
 ## Build and install (production)
@@ -118,7 +133,8 @@ Full infra and EC2 notes: [`infra/README.md`](infra/README.md)
 | `apps/web/` | React SPA |
 | `apps/api/` | FastAPI + Alembic |
 | `content/` | Authoring Markdown for pages (seeded into Postgres) |
-| `scripts/` | `seed_db.py`, `deploy_site.py`, `bootstrap_api_venv.sh` |
+| `generate-resume-pdf.sh` | Repo root: `npm install` in `apps/web`, Playwright Chromium, then `resume.pdf` |
+| `scripts/` | `seed_db.py`, `deploy_site.py`, `bootstrap_api_venv.sh`, `render_resume_pdf.mjs`, `resume-print.css` |
 | `infra/terraform/` | S3 + CloudFront for the built SPA |
 
 ---
