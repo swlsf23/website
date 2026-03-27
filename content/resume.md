@@ -5,13 +5,13 @@ title: Resume
 
 # Steven Leslie
 
-*Product & developer content · Doc tooling & infrastructure · AI-assisted workflows · User-focused, feedback-driven*
+<!-- resume-contact -->
 
-San Francisco, California, United States
+Product & developer content · Doc tooling & infrastructure · AI-assisted workflows · User-focused, feedback-driven
 
 ## About
 
-I'm a technical writer with extensive experience managing and creating documentation for enterprise SaaS, data platforms, APIs, connectors, and data pipelines, including admin and developer workflows.
+I'm a technical writer with extensive experience managing and creating documentation for enterprise SaaS and PaaS, data platforms, APIs, connectors, and data pipelines, including admin and developer workflows.
 
 I've implemented and managed a documentation site and build infrastructure using AsciiDoc and Markdown in a docs-as-code pipeline. I've set up and managed GitHub and Jira for doc team workflows, sprint coordination, and documentation releases.
 
