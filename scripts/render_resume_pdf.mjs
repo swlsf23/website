@@ -1,14 +1,21 @@
 #!/usr/bin/env node
 /**
- * content/resume.md + scripts/resume-print.css → apps/web/public/resume.pdf
- * (headless Chromium via Playwright). Run: cd apps/web && npm run resume:pdf
+ * Markdown + scripts/resume-print.css → PDF (headless Chromium via Playwright).
  *
- * Optional phone/email: `<!-- resume-contact -->` (under your name in content/resume.md) is replaced
- * by content/resume.contact.local.md (gitignored) or RESUME_PHONE / RESUME_EMAIL.
+ * Defaults: content/resume.md → apps/web/public/resume.pdf
+ *   cd apps/web && npm run resume:pdf
+ *
+ * Optional phone/email: `<!-- resume-contact -->` in content/resume.md is replaced
+ * by content/resume.contact.local.md or RESUME_PHONE / RESUME_EMAIL.
+ *
+ * Build writing samples PDF (same styling):
+ *   npm run resume:pdf:writing
+ * Both in one run (one browser):
+ *   npm run resume:pdf:all
  */
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,12 +24,44 @@ const require = createRequire(join(ROOT, 'apps/web/package.json'));
 const { chromium } = require('playwright');
 const { marked } = require('marked');
 
-const SRC = join(ROOT, 'content/resume.md');
+const DEFAULT_JOBS = [
+  {
+    src: join(ROOT, 'content/resume.md'),
+    out: join(ROOT, 'apps/web/public/resume.pdf'),
+  },
+  {
+    src: join(ROOT, 'content/writing-samples.md'),
+    out: join(ROOT, 'apps/web/public/writing-samples.pdf'),
+  },
+];
+
 const CONTACT = join(ROOT, 'content/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
-const OUT = join(ROOT, 'apps/web/public/resume.pdf');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
+
+function resolveUserPath(p) {
+  if (!p) return p;
+  return isAbsolute(p) ? p : resolve(process.cwd(), p);
+}
+
+function parseJobs(argv) {
+  const args = argv.slice(2);
+  if (args.includes('--all')) {
+    return DEFAULT_JOBS;
+  }
+  let input = join(ROOT, 'content/resume.md');
+  let output = join(ROOT, 'apps/web/public/resume.pdf');
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--input' || a === '-i') {
+      input = resolveUserPath(args[++i]);
+    } else if (a === '--output' || a === '-o') {
+      output = resolveUserPath(args[++i]);
+    }
+  }
+  return [{ src: input, out: output }];
+}
 
 function contactMarkdown() {
   const phone = process.env.RESUME_PHONE?.trim();
@@ -50,7 +89,7 @@ function buildBodyHtml(mdRaw) {
   const fragment = contactMarkdown();
   const parts = mdRaw.split(CONTACT_MARKER);
   const before = parts[0] ?? '';
-  const after = parts.slice(1).join(''); // drop marker(s); rare duplicate markers
+  const after = parts.slice(1).join('');
   const contactHtml = fragment
     ? `<div class="resume-contact">${marked.parse(fragment)}</div>`
     : '';
@@ -75,26 +114,37 @@ function insertHrBeforeMajorSections(html) {
   return html.replace(/<h2\b/gi, (match) => `<hr>${match}`);
 }
 
-async function main() {
-  const raw = readFileSync(SRC, 'utf8');
+async function renderPdf(browser, { src, out }) {
+  const raw = readFileSync(src, 'utf8');
   const mdRaw = stripYamlFrontmatter(raw);
   marked.setOptions({ gfm: true, breaks: false });
   const bodyHtml = buildBodyHtml(mdRaw);
   const cssText = readFileSync(CSS, 'utf8');
   const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
 
-  const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.emulateMedia({ media: 'print' });
   await page.setContent(html, { waitUntil: 'load' });
-  mkdirSync(dirname(OUT), { recursive: true });
+  mkdirSync(dirname(out), { recursive: true });
   await page.pdf({
-    path: OUT,
+    path: out,
     preferCSSPageSize: true,
     printBackground: true,
   });
-  await browser.close();
-  console.log(`resume:pdf: wrote ${OUT}`);
+  await page.close();
+  console.log(`resume:pdf: wrote ${out}`);
+}
+
+async function main() {
+  const jobs = parseJobs(process.argv);
+  const browser = await chromium.launch();
+  try {
+    for (const job of jobs) {
+      await renderPdf(browser, job);
+    }
+  } finally {
+    await browser.close();
+  }
 }
 
 main().catch((err) => {
