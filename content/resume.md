@@ -54,3 +54,55 @@ San Francisco Bay Area · On-site
 - Lead for documentation infrastructure and tools. Worked with a contract programmer, the documentation team, and DevOps to move **docs.mulesoft.com** to a docs-as-code platform. Managed source control and the build process using GitHub, Antora, Jenkins, and AWS.
 
 - Developed and maintained developer and API documentation across multiple product areas, including API management, connectors, and on-premises versions of the MuleSoft platform.
+
+### Senior Technical Writer — Pivotal Software, Inc.
+
+*Full-time · Jul 2016 – Jan 2017 · 7 mos*
+
+San Francisco · On-site
+
+- Created and updated administrator and developer content for Pivotal Cloud Foundry and Cloud Foundry (OSS) platforms. Edited and revised content provided by product managers and third-party contributors in an extreme agile environment.
+
+### Senior Technical Writer — NetSuite (Acquired by Oracle)
+
+*Full-time · Mar 2014 – Jul 2016 · 2 yrs 5 mos*
+
+Austin, TX · Remote
+
+- Created developer documentation for NetSuite's e-commerce web application. Developed architectural overview and best practice documentation for customizing the core application. Developed architectural overview and customization best practice documentation.
+
+### Senior Technical Writer — Oracle
+
+*Full-time · Jun 2008 – Feb 2014 · 5 yrs 9 mos*
+
+Buenos Aires, Argentina · On-site
+
+- Lead writer for Oracle's BPM product. Tracked features, created schedules and project plans. Wrote a user's guide for a web-based BPM editing and management tool. Contributed to other areas as needed.
+
+### Senior Technical Writer — BEA Systems (Acquired by Oracle)
+
+*Full-time · Feb 2005 – Jun 2008 · 3 yrs 5 mos*
+
+San Francisco Bay Area / Buenos Aires, Argentina · On-site
+
+- Maintained and wrote new sections of WebLogic Server's clustering, failover, and migration documentation. Created Javadocs and code examples.
+
+### Senior Technical Writer — Plumtree Software (Acquired by BEA Systems)
+
+*Full-time · Apr 2004 – Feb 2005 · 11 mos*
+
+San Francisco Bay Area · On-site
+
+- Wrote installation, administration, and configuration guides for Plumtree’s collaboration management and usage tracking applications.
+
+## Education
+
+### Bachelor of Science, Data Science — Arizona State University
+
+*In progress · Mar 2025 – May 2028*
+
+- GPA: 3.88
+
+### Bachelor of Arts, Philosophy — New Mexico State University
+
+*Minor in English*
