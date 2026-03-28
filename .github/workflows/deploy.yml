@@ -1,0 +1,81 @@
+# Deploys the SPA to S3 + CloudFront on push to main (same as ./manage-site.sh site-build + site-deploy).
+#
+# GitHub repository secrets:
+#   AWS_ROLE_ARN — IAM role ARN from Terraform output github_actions_deploy_role_arn (OIDC).
+#
+# GitHub repository variables (Settings → Secrets and variables → Actions → Variables):
+#   SPA_S3_BUCKET              — from terraform output spa_bucket_name
+#   CLOUDFRONT_DISTRIBUTION_ID — from terraform output cloudfront_distribution_id
+#   AWS_REGION                 — optional; default us-east-1
+
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      SPA_S3_BUCKET: ${{ vars.SPA_S3_BUCKET }}
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify deploy configuration
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${SPA_S3_BUCKET:-}" || -z "${CLOUDFRONT_DISTRIBUTION_ID:-}" ]]; then
+            echo "Set repository variables SPA_S3_BUCKET and CLOUDFRONT_DISTRIBUTION_ID (see infra/README.md)." >&2
+            exit 1
+          fi
+          if [[ -z "${AWS_ROLE_ARN:-}" ]]; then
+            echo "Set repository secret AWS_ROLE_ARN (IAM role for GitHub OIDC)." >&2
+            exit 1
+          fi
+          echo "Deploy: bucket=$SPA_S3_BUCKET distribution=$CLOUDFRONT_DISTRIBUTION_ID region=$AWS_REGION" >&2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies & build
+        working-directory: apps/web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run resume:pdf:all
+          npm run build
+
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: aws s3 sync apps/web/dist/ "s3://${SPA_S3_BUCKET}/" --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths "/*" \
+            --output text
