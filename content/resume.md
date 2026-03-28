@@ -19,7 +19,7 @@ I integrate Cursor and LLMs in my writing and review workflows to create and mai
 
 ## Experience
 
-### Staff Technical Writer — Snowflake
+### Staff technical writer — Snowflake
 
 *Full-time · Jun 2021 – Mar 2026 · 4 yrs 10 mos*
 
@@ -29,11 +29,13 @@ San Francisco, California, United States · On-site
 
 - **Snowflake Native Apps** — Doc content and strategy lead. Wrote and planned content for developers, including Snowflake CLI and API references and guides. Wrote tutorials for developers learning the Native Apps development workflow, from setup through deployment.
 
+- Created initial content for other Snowflake products, including Snowflake SQL API (REST), Streamlit in Snowflake (Python), and multiple connectors (JDBC, Python, SAP, etc.).
+
 - Authored in a docs-as-code pipeline using Cursor and multiple AI agents. Created agent rules for Snowflake and my product areas to maintain technical accuracy and consistency. Contributed to the team's effort to incorporate AI into the documentation process.
 
 - Partnered with engineering and product management to define documentation scope, improve developer workflows, and ensure release readiness.
 
-### Staff Technical Writer — Salesforce
+### Staff technical writer — Salesforce
 
 *Full-time · Jun 2018 – May 2021 · 3 yrs*
 
@@ -45,7 +47,7 @@ San Francisco Bay Area · On-site
 
 - Created and maintained documentation for API management and monitoring tools and the on-premises version of MuleSoft’s platform based on Kubernetes.
 
-### Senior Technical Writer — MuleSoft (acquired by Salesforce)
+### Senior technical writer — MuleSoft (acquired by Salesforce)
 
 *Full-time · Jan 2017 – Jun 2018 · 1 yr 6 mos*
 
@@ -55,7 +57,7 @@ San Francisco Bay Area · On-site
 
 - Developed and maintained developer and API documentation across multiple product areas, including API management, connectors, and on-premises versions of the MuleSoft platform.
 
-### Senior Technical Writer — Pivotal Software, Inc.
+### Senior technical writer — Pivotal Software, Inc.
 
 *Full-time · Jul 2016 – Jan 2017 · 7 mos*
 
@@ -63,7 +65,7 @@ San Francisco · On-site
 
 - Created and updated administrator and developer content for Pivotal Cloud Foundry and Cloud Foundry (OSS) platforms. Edited and revised content provided by product managers and third-party contributors in an extreme agile environment.
 
-### Senior Technical Writer — NetSuite (Acquired by Oracle)
+### Senior technical writer — NetSuite (acquired by Oracle)
 
 *Full-time · Mar 2014 – Jul 2016 · 2 yrs 5 mos*
 
@@ -71,7 +73,7 @@ Austin, TX · Remote
 
 - Created developer documentation for NetSuite's e-commerce web application. Developed architectural overview and best practice documentation for customizing the core application. Developed architectural overview and customization best practice documentation.
 
-### Senior Technical Writer — Oracle
+### Senior technical writer — Oracle
 
 *Full-time · Jun 2008 – Feb 2014 · 5 yrs 9 mos*
 
@@ -79,7 +81,7 @@ Buenos Aires, Argentina · On-site
 
 - Lead writer for Oracle's BPM product. Tracked features, created schedules and project plans. Wrote a user's guide for a web-based BPM editing and management tool. Contributed to other areas as needed.
 
-### Senior Technical Writer — BEA Systems (Acquired by Oracle)
+### Senior technical writer — BEA Systems (acquired by Oracle)
 
 *Full-time · Feb 2005 – Jun 2008 · 3 yrs 5 mos*
 
@@ -87,7 +89,7 @@ San Francisco Bay Area / Buenos Aires, Argentina · On-site
 
 - Maintained and wrote new sections of WebLogic Server's clustering, failover, and migration documentation. Created Javadocs and code examples.
 
-### Senior Technical Writer — Plumtree Software (Acquired by BEA Systems)
+### Senior technical writer — Plumtree Software (acquired by BEA Systems)
 
 *Full-time · Apr 2004 – Feb 2005 · 11 mos*
 

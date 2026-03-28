@@ -5,7 +5,9 @@ title: Writing samples
 
 # Steven Leslie - Writing samples
 
-Technical writing for developers: Snowflake Native Apps tutorials and workflows, focused deep dives, and the Snowflake SQL API.
+<!-- resume-contact -->
+
+Technical writing for developers: Snowflake Native Apps tutorials and workflows, additional product topics, and the Snowflake SQL API.
 
 ### Snowflake Native Apps — developer tutorials
 
@@ -24,7 +26,8 @@ Built with the Developer Experience team: step-by-step workflows for a basic Nat
 
 ### Snowflake Native Apps — additional topics
 
-- [Versioned schema](https://docs.snowflake.com/en/developer-guide/native-apps/versioned-schema) — Complex area of the Native Apps model; rewrote the topic from customer feedback and input from development.
+- Permissions SDK — Describes how developers (providers) use Streamlit (Python) to create a UI for granting privileges and creating references for an app. [Conceptual topic](https://docs.snowflake.com/en/developer-guide/native-apps/requesting-ui) · [API reference](https://docs.snowflake.com/en/developer-guide/native-apps/requesting-permission-sdk-ref).
+- [Versioned schema](https://docs.snowflake.com/en/developer-guide/native-apps/versioned-schema) — Complex area of the Native Apps framework; rewrote the topic from customer feedback and input from development.
 - [Snowflake ML in a Native App (no model)](https://docs.snowflake.com/en/developer-guide/native-apps/snowflake-ml-na-no-model) — How to use Snowflake ML inside a Native App; includes SQL and Python examples.
 
 ### Snowflake SQL API
