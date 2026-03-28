@@ -9,11 +9,10 @@ Monorepo: **Vite + React** (`apps/web`), page copy in **`content/personal/`** (M
 ### Local development
 
 - **Node.js** (LTS) and npm — for `apps/web`
-- **Python 3** — optional; only for `scripts/deploy_site.py` (AWS upload) if you use it
 
 ### Deploying the static site to AWS (S3 + CloudFront)
 
-- **AWS CLI** — install the [official AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), then `aws configure`
+- **AWS CLI** — install the [official AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html), then **`aws configure sso`** (see **[`content/docs/aws-sso-local.example.md`](content/docs/aws-sso-local.example.md)** for every prompt)
 - **Terraform** (1.5+) — for `infra/terraform` (S3 bucket + CloudFront)
 - **AWS account + IAM credentials** with permission to create S3, CloudFront, and related resources
 
@@ -37,13 +36,11 @@ Details: [`apps/web/README.md`](apps/web/README.md)
 
 [`content/personal/resume.md`](content/personal/resume.md) → [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf); [`content/personal/writing-samples.md`](content/personal/writing-samples.md) → [`apps/web/public/writing-samples.pdf`](apps/web/public/writing-samples.pdf). **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling: [`scripts/resume-print.css`](scripts/resume-print.css).
 
-From the **repository root**:
+From the **repository root** (or use **`./manage-site.sh site-build`**, which does this plus `npm run build`):
 
 ```bash
-./generate-resume-pdf.sh
+cd apps/web && npm ci && npx playwright install chromium && npm run resume:pdf:all
 ```
-
-Equivalent: `cd apps/web && npm install && npx playwright install chromium && npm run resume:pdf:all`.
 
 ---
 
@@ -51,36 +48,21 @@ Equivalent: `cd apps/web && npm install && npx playwright install chromium && np
 
 ### SPA bundle (static files)
 
-1. **Infrastructure** — Apply Terraform so you have an S3 bucket and CloudFront distribution:
+From the **repository root**, [`./manage-site.sh`](./manage-site.sh) wraps the usual steps:
 
-   ```bash
-   cd infra/terraform
-   cp terraform.tfvars.example terraform.tfvars
-   # Edit terraform.tfvars: set spa_bucket_name (globally unique)
-   terraform init
-   terraform apply
-   ```
+1. **`./manage-site.sh infra-create`** — `terraform init` (if needed) + `terraform apply` in `infra/terraform` (copy `terraform.tfvars.example` → `terraform.tfvars` and set `spa_bucket_name` first).
 
-   Copy outputs: `spa_bucket_name`, `cloudfront_distribution_id`, `cloudfront_url`.
+2. **`export AWS_PROFILE=… && aws sso login`** before Terraform / deploy (see [`content/docs/aws-sso-local.example.md`](content/docs/aws-sso-local.example.md)).
 
-2. **Install deploy tooling** — Python deps for the upload script:
+3. **`./manage-site.sh site-build`** — `npm ci`, Playwright PDFs, `npm run build` → `apps/web/dist`.
 
-   ```bash
-   pip install -r scripts/requirements-deploy.txt
-   ```
+4. **`./manage-site.sh site-deploy`** — `aws s3 sync` of `dist/` to the bucket and CloudFront invalidation (needs **AWS CLI**). Reads `SPA_S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`, `AWS_REGION` if set; otherwise **`terraform output`** from `infra/terraform`.
 
-3. **Build and upload** — From the **repository root**:
+5. **`./manage-site.sh infra-destroy`** — confirm with `yes`, then `terraform destroy`.
 
-   ```bash
-   export SPA_S3_BUCKET="<spa_bucket_name from terraform output>"
-   export CLOUDFRONT_DISTRIBUTION_ID="<cloudfront_distribution_id from terraform output>"
-   export AWS_REGION=us-east-1
-   python scripts/deploy_site.py
-   ```
+Run **`./manage-site.sh help`** for the command list.
 
-   This runs `npm ci` and `npm run build` in `apps/web` (which runs **`generate:content`** then `vite build`), uploads `dist/` to S3, and invalidates CloudFront.
-
-Notes: [`infra/README.md`](infra/README.md)
+More detail: [`infra/README.md`](infra/README.md). **Auth / SSO:** [`content/docs/aws-auth-and-deploy.md`](content/docs/aws-auth-and-deploy.md).
 
 ---
 
@@ -90,10 +72,10 @@ Notes: [`infra/README.md`](infra/README.md)
 |------|---------|
 | `apps/web/` | React SPA (static after build) |
 | `content/personal/` | Authoring Markdown: site pages (`home.md`), résumé (`resume.md`, etc.) |
-| `content/docs/` | Project documentation (placeholder) |
+| `content/docs/` | Project docs: [`aws-auth-and-deploy.md`](content/docs/aws-auth-and-deploy.md), [`aws-sso-local.example.md`](content/docs/aws-sso-local.example.md) (copy to `aws-sso.local`) |
 | `scripts/generate-site-content.mjs` | Build-time: `content/personal` → `apps/web/src/generated/sitePages.ts` |
-| `generate-resume-pdf.sh` | Repo root: Playwright PDFs into `apps/web/public/` |
-| `scripts/` | `deploy_site.py`, `render_resume_pdf.mjs`, `resume-print.css`, … |
+| `manage-site.sh` | Repo root: Terraform + `site-build` + `site-deploy` (wrapper only) |
+| `scripts/` | `render_resume_pdf.mjs`, `resume-print.css`, `generate-site-content.mjs`, … |
 | `infra/terraform/` | S3 + CloudFront for the built SPA |
 
 ---

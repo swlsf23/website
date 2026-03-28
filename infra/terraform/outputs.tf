@@ -13,3 +13,8 @@ output "cloudfront_distribution_id" {
 output "cloudfront_url" {
   value = "https://${aws_cloudfront_distribution.spa.domain_name}"
 }
+
+output "custom_site_urls" {
+  description = "HTTPS URLs when custom_domain_aliases is set."
+  value       = [for name in var.custom_domain_aliases : "https://${name}"]
+}

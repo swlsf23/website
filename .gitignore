@@ -25,6 +25,9 @@ content/personal/resume.contact.local.md
 apps/web/public/resume.pdf
 apps/web/public/writing-samples.pdf
 
+# Local cache (optional; not part of repo)
+.manage-site-infra-cache
+
 # Terraform
 .terraform/
 .terraform.lock.hcl

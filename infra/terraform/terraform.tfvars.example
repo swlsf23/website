@@ -2,3 +2,7 @@
 aws_region        = "us-east-1"
 spa_bucket_name   = "yourname-website-spa"
 project           = "website"
+
+# Optional: custom domain (ACM + Route 53 aliases). Requires apex -> zone id in Route 53.
+# custom_domain_aliases = ["example.com", "www.example.com"]
+# route53_zone_ids = { "example.com" = "Z..." }
