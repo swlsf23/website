@@ -75,6 +75,15 @@ h3 {
   margin: 0.65rem 0 0.25rem;
 }
 
+/* PDF: keep headings with the block that follows; don’t split heading lines across pages */
+h2,
+h3 {
+  break-after: avoid;
+  break-inside: avoid;
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
 p {
   margin: 0 0 0.45rem;
 }
