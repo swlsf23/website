@@ -120,6 +120,11 @@ flowchart LR
 
 ## Local and deploy scripts (Python-first)
 
+### IDE vs terminal (your workflow)
+
+- **SPA build:** Using the IDE **Build** / task / `npm run build` in `apps/web` is fine—you do not have to run the Vite build only from a bare shell.
+- **Terraform and AWS:** Expect **`terraform`** (`init` / `plan` / `apply`), **`aws sso login`**, **`aws s3 sync`**, and **CloudFront invalidation** from the **terminal** (including Cursor’s integrated terminal). There is no IDE button for Terraform; custom domain work (ACM, Route 53) follows the same pattern.
+
 - `scripts/deploy_site.py` — `npm run build`, upload `dist/` to S3, invalidate CloudFront.
 - `scripts/deploy_api.py` — optional helper for **SSH/SSM** + restart **systemd** unit on EC2.
 - `scripts/seed_db.py` — parse **page content** under `content/` (e.g. Markdown) and upsert into Postgres; lives in `scripts/`, not under `content/`.
