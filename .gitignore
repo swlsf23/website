@@ -18,8 +18,8 @@ __pycache__/
 .env.*
 !.env.example
 
-# Résumé phone/email (see personal/resume.contact.example.md)
-personal/resume.contact.local.md
+# Résumé phone/email (see content/personal/resume.contact.example.md)
+content/personal/resume.contact.local.md
 
 # Generated PDFs (contact baked in; build before deploy — see scripts/render_resume_pdf.mjs)
 apps/web/public/resume.pdf
@@ -36,3 +36,6 @@ infra/terraform/terraform.tfvars
 .DS_Store
 .idea/
 *.sw?
+
+# Generated from content/personal (see scripts/generate-site-content.mjs)
+apps/web/src/generated/
