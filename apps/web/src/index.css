@@ -15,6 +15,18 @@
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* One scale site-wide: page titles, card titles, resume sections */
+  --type-title: clamp(1.65rem, 3.5vw, 2.05rem);
+  --type-title-lh: 1.18;
+  --type-title-track: -0.03em;
+  --type-lede: 1.05rem;
+  --type-lede-lh: 1.55;
+  --type-subheading: 1.15rem;
+  --type-h3: 1rem;
+
+  /* First line of main content (title) aligns across About / Resume / Projects */
+  --page-content-pad-top: 3rem;
+
   font: 17px/150% var(--sans);
   letter-spacing: 0.01em;
   color-scheme: light dark;
@@ -42,8 +54,19 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* One width for all routes so main content lines up (no horizontal jump on Resume) */
 #root {
-  max-width: 42rem;
+  max-width: 56rem;
   margin: 0 auto;
   padding: 0 1.25rem;
   min-height: 100svh;

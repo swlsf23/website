@@ -4,13 +4,16 @@ export function Layout() {
   return (
     <div className="site">
       <header className="site-header">
-        <NavLink className="site-logo" to="/" end>
-          Steven Leslie
-        </NavLink>
-        <nav className="site-nav" aria-label="Primary">
-          <NavLink to="/resume">Resume</NavLink>
-          <NavLink to="/about-this-site">About this site</NavLink>
-        </nav>
+        <div className="site-header-brand">
+          <p className="site-name">Steven Leslie</p>
+          <nav className="site-nav" aria-label="Primary">
+            <NavLink to="/" end>
+              About
+            </NavLink>
+            <NavLink to="/resume">Resume</NavLink>
+            <NavLink to="/projects">Projects</NavLink>
+          </nav>
+        </div>
       </header>
 
       <main id="top">

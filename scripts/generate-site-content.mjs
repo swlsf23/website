@@ -48,7 +48,6 @@ function parseMarkdownFile(text, stem) {
 
 function main() {
   const skip = new Set([
-    'resume.md',
     'writing-samples.md',
     'resume.contact.example.md',
     'resume.contact.local.md',

@@ -31,3 +31,15 @@ variable "route53_zone_ids" {
   description = "Map apex domain -> Route 53 hosted zone ID for ACM DNS validation and alias records."
   default     = {}
 }
+
+variable "github_actions_repository" {
+  type        = string
+  description = "GitHub repo as owner/name for OIDC (e.g. acme/website). Empty = do not create GitHub deploy IAM role."
+  default     = ""
+}
+
+variable "github_actions_branch" {
+  type        = string
+  description = "Branch allowed to assume the deploy role (OIDC sub claim)."
+  default     = "main"
+}

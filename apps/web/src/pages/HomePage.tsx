@@ -9,7 +9,6 @@ export function HomePage() {
 
   return (
     <section className="hero" aria-labelledby="hero-heading">
-      <p className="hero-eyebrow">Portfolio</p>
       <h1 id="hero-heading">Steven Leslie</h1>
       {home ? (
         <div

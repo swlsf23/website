@@ -1,60 +1,149 @@
+import { useEffect, useMemo, useState } from 'react'
+import { marked } from 'marked'
+import { getSitePage } from '../generated/sitePages.ts'
+import { splitResumeMarkdown } from '../utils/splitResumeMarkdown.ts'
+
+const PREAMBLE_ID = 'resume-preamble'
+
 export function ResumePage() {
+  const resume = getSitePage('resume')
+  const sections = resume ? splitResumeMarkdown(resume.body_md) : []
+
+  const sectionEntries = useMemo(
+    () => sections.filter((s) => s.kind === 'section'),
+    [sections],
+  )
+
+  const preambleSection = useMemo(
+    () => sections.find((s) => s.kind === 'preamble'),
+    [sections],
+  )
+
+  const tocItems = useMemo(
+    () =>
+      sectionEntries.map((sec) => ({
+        id: sec.id,
+        label: sec.title,
+      })),
+    [sectionEntries],
+  )
+
+  const firstSectionId = sectionEntries[0]?.id ?? ''
+
+  const [activeSectionId, setActiveSectionId] = useState(firstSectionId)
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1)
+    const ids = new Set(sectionEntries.map((s) => s.id))
+    if (hash && ids.has(hash)) {
+      setActiveSectionId(hash)
+    } else {
+      setActiveSectionId(firstSectionId)
+    }
+  }, [sectionEntries, firstSectionId])
+
+  const activeSection = sectionEntries.find((s) => s.id === activeSectionId)
+
   return (
     <article className="resume-page">
-      <div className="resume-page-topbar">
-        <div
-          className="resume-actions resume-actions--compact"
-          aria-label="Resume downloads"
-        >
-          <a className="btn btn-primary" href="/resume.pdf" download>
-            Resume (PDF)
-          </a>
-          <a className="btn btn-ghost" href="/resume.md">
-            Machine-readable
-          </a>
+      {resume ? (
+        <div className="resume-page-layout">
+          <div className="resume-page-main">
+            {preambleSection ? (
+              <div
+                id={PREAMBLE_ID}
+                className="resume-preamble resume-body--md resume-anchor"
+                dangerouslySetInnerHTML={{
+                  __html: marked.parse(preambleSection.bodyMd, {
+                    async: false,
+                  }) as string,
+                }}
+              />
+            ) : null}
+
+            <div className="resume-page-single">
+              {activeSection
+                ? (() => {
+                    const html = marked.parse(activeSection.bodyMd, {
+                      async: false,
+                    }) as string
+                    const titleId = `${activeSection.id}-title`
+                    return (
+                      <article
+                        key={activeSection.id}
+                        id={activeSection.id}
+                        className="resume-card resume-card--section resume-anchor"
+                        aria-labelledby={titleId}
+                      >
+                        <header className="resume-card-header">
+                          <h2 id={titleId} className="resume-card-heading">
+                            {activeSection.title}
+                          </h2>
+                        </header>
+                        <div
+                          className="resume-card-body resume-body--md"
+                          dangerouslySetInnerHTML={{ __html: html }}
+                        />
+                      </article>
+                    )
+                  })()
+                : null}
+            </div>
+          </div>
+
+          <div className="resume-page-sidebar">
+            <nav className="resume-toc" aria-label="Resume sections">
+              <ul className="resume-toc-list">
+                {tocItems.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      className={
+                        activeSectionId === item.id
+                          ? 'resume-toc-link resume-toc-link--active'
+                          : 'resume-toc-link'
+                      }
+                      href={`#${item.id}`}
+                      aria-current={
+                        activeSectionId === item.id ? 'true' : undefined
+                      }
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setActiveSectionId(item.id)
+                        window.history.replaceState(null, '', `#${item.id}`)
+                      }}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="resume-downloads" aria-label="Resume downloads">
+              <a
+                className="btn btn-primary"
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                PDF
+              </a>
+              <a
+                className="btn btn-ghost"
+                href="/resume.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Machine-readable
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <header className="page-header page-header--resume">
-        <h1>Resume</h1>
-        <p className="page-lede">
-          Replace this page with your CV sections—experience, education, and
-          skills. PDF and machine-readable downloads are above; keep files in{' '}
-          <code>public/</code> in sync.
+      ) : (
+        <p className="api-hint" role="status">
+          No resume in <code>content/personal/resume.md</code>. Add it and run{' '}
+          <code>npm run dev</code> (content is generated at build time).
         </p>
-      </header>
-
-      <section className="section" aria-labelledby="experience-heading">
-        <h2 id="experience-heading">Experience</h2>
-        <p>Placeholder. Add roles, dates, and impact bullets.</p>
-      </section>
-
-      <section className="section" aria-labelledby="education-heading">
-        <h2 id="education-heading">Education</h2>
-        <p>Placeholder.</p>
-      </section>
-
-      <section
-        className="section section-contact"
-        aria-labelledby="contact-heading"
-      >
-        <h2 id="contact-heading">Contact</h2>
-        <p>
-          <a href="mailto:you@example.com">you@example.com</a>
-          {' · '}
-          <a
-            href="https://www.linkedin.com/in/sleslie23/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LinkedIn
-          </a>
-          {' · '}
-          <a href="https://github.com/" target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-        </p>
-      </section>
+      )}
     </article>
   )
 }

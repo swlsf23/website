@@ -52,3 +52,29 @@ From the **repository root**, with **`export AWS_PROFILE=…`** and **`aws sso l
 ./manage-site.sh site-build    # npm ci, PDFs, vite build → apps/web/dist
 ./manage-site.sh site-deploy   # aws s3 sync + CloudFront invalidation (uses terraform output if env vars unset)
 ```
+
+## CI/CD (GitHub Actions)
+
+Pushes to **`main`** run [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml): build the SPA (including PDF generation) then **`aws s3 sync`** and **CloudFront invalidation**, using **OIDC** (no long-lived AWS keys in GitHub).
+
+### 1. Terraform: deploy role (optional but recommended)
+
+In `terraform.tfvars`, set:
+
+- `github_actions_repository` — your repo as `owner/name` (must match GitHub exactly).
+- `github_actions_branch` — optional; default is `main`.
+
+Run `terraform init -upgrade` (adds the `tls` provider), then `terraform apply`. Note output **`github_actions_deploy_role_arn`**.
+
+If apply fails because an IAM OIDC provider for `token.actions.githubusercontent.com` already exists in the account, import it once (see the comment at the top of [`terraform/github_ci.tf`](terraform/github_ci.tf)), then apply again.
+
+### 2. GitHub repository settings
+
+**Settings → Secrets and variables → Actions**
+
+- **Secret** `AWS_ROLE_ARN` — value from Terraform output `github_actions_deploy_role_arn`.
+- **Variable** `SPA_S3_BUCKET` — from output `spa_bucket_name`.
+- **Variable** `CLOUDFRONT_DISTRIBUTION_ID` — from output `cloudfront_distribution_id`.
+- **Variable** `AWS_REGION` — optional; the workflow defaults to `us-east-1` if unset.
+
+Commit [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) on **`main`** so Actions can run. You can also trigger a run manually (**Actions → Deploy site → Run workflow**).

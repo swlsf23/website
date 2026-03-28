@@ -6,3 +6,7 @@ project           = "website"
 # Optional: custom domain (ACM + Route 53 aliases). Requires apex -> zone id in Route 53.
 # custom_domain_aliases = ["example.com", "www.example.com"]
 # route53_zone_ids = { "example.com" = "Z..." }
+
+# Optional: GitHub Actions OIDC deploy role (see infra/README.md). Example:
+# github_actions_repository = "myorg/my-website"
+# github_actions_branch     = "main"

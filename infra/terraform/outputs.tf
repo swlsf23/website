@@ -18,3 +18,8 @@ output "custom_site_urls" {
   description = "HTTPS URLs when custom_domain_aliases is set."
   value       = [for name in var.custom_domain_aliases : "https://${name}"]
 }
+
+output "github_actions_deploy_role_arn" {
+  description = "Set as GitHub repository secret AWS_ROLE_ARN for the deploy workflow."
+  value       = var.github_actions_repository != "" ? aws_iam_role.github_deploy[0].arn : null
+}
