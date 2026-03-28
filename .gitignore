@@ -20,6 +20,7 @@ __pycache__/
 
 # Résumé phone/email (see content/personal/resume.contact.example.md)
 content/personal/resume.contact.local.md
+content/resume.contact.local.md
 
 # Generated PDFs (contact baked in; build before deploy — see scripts/render_resume_pdf.mjs)
 apps/web/public/resume.pdf
