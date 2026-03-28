@@ -1,6 +1,6 @@
 # Website
 
-Monorepo: **Vite + React** (`apps/web`), page copy in **`content/personal/`** (Markdown). At **dev and build** time, `scripts/generate-site-content.mjs` turns that Markdown into bundled TypeScript (`apps/web/src/generated/sitePages.ts`)—**no database, no API at runtime.**
+Monorepo: **Vite + React** (`apps/web`), page copy in **`content/site/`** (Markdown). At **dev and build** time, `scripts/generate-site-content.mjs` turns that Markdown into bundled TypeScript (`apps/web/src/generated/sitePages.ts`)—**no database, no API at runtime.**
 
 ---
 
@@ -28,13 +28,13 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`). The dev server runs **`predev`**, which regenerates `sitePages.ts` from `content/personal/*.md` (site pages only; résumé sources are excluded).
+Open the URL Vite prints (usually `http://localhost:5173`). The dev server runs **`predev`**, which regenerates `sitePages.ts` from `content/site/*.md` (site pages only; résumé sources are excluded).
 
 Details: [`apps/web/README.md`](apps/web/README.md)
 
 ### 2. Résumé PDF (manual, scriptable)
 
-[`content/personal/resume.md`](content/personal/resume.md) → [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf); [`content/personal/writing-samples.md`](content/personal/writing-samples.md) → [`apps/web/public/writing-samples.pdf`](apps/web/public/writing-samples.pdf). **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling: [`scripts/resume-print.css`](scripts/resume-print.css).
+[`content/site/resume.md`](content/site/resume.md) → [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf); [`content/site/writing-samples.md`](content/site/writing-samples.md) → [`apps/web/public/writing-samples.pdf`](apps/web/public/writing-samples.pdf). **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling: [`scripts/resume-print.css`](scripts/resume-print.css).
 
 From the **repository root** (or use **`./manage-site.sh site-build`**, which does this plus `npm run build`):
 
@@ -71,9 +71,9 @@ More detail: [`infra/README.md`](infra/README.md). **Auth / SSO:** [`content/doc
 | Path | Purpose |
 |------|---------|
 | `apps/web/` | React SPA (static after build) |
-| `content/personal/` | Authoring Markdown: site pages (`home.md`), résumé (`resume.md`, etc.) |
+| `content/site/` | Authoring Markdown: site pages (`home.md`), résumé (`resume.md`, etc.) |
 | `content/docs/` | Project docs: [`aws-auth-and-deploy.md`](content/docs/aws-auth-and-deploy.md), [`aws-sso-local.example.md`](content/docs/aws-sso-local.example.md) (copy to `aws-sso.local`) |
-| `scripts/generate-site-content.mjs` | Build-time: `content/personal` → `apps/web/src/generated/sitePages.ts` |
+| `scripts/generate-site-content.mjs` | Build-time: `content/site` → `apps/web/src/generated/sitePages.ts` |
 | `manage-site.sh` | Repo root: Terraform + `site-build` + `site-deploy` (wrapper only) |
 | `scripts/` | `render_resume_pdf.mjs`, `resume-print.css`, `generate-site-content.mjs`, … |
 | `infra/terraform/` | S3 + CloudFront for the built SPA |

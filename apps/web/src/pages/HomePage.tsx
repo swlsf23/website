@@ -17,7 +17,7 @@ export function HomePage() {
         />
       ) : (
         <p className="hero-lede api-hint" role="status">
-          No home page in <code>content/personal/home.md</code>. Add it and run{' '}
+          No home page in <code>content/site/home.md</code>. Add it and run{' '}
           <code>npm run dev</code> (content is generated at build time).
         </p>
       )}

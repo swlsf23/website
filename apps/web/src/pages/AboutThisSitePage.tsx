@@ -5,7 +5,7 @@ export function AboutThisSitePage() {
         <h1>About this site</h1>
         <p className="page-lede">
           A personal portfolio built as a multi-page React app. Site copy lives
-          in Markdown under <code>content/personal/</code> and is turned into
+          in Markdown under <code>content/site/</code> and is turned into
           bundled data at build time—no database or API at runtime.
         </p>
       </header>

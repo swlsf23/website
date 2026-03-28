@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "resume:pdf": "node ../../scripts/render_resume_pdf.mjs",
-    "resume:pdf:writing": "node ../../scripts/render_resume_pdf.mjs --input ../../content/personal/writing-samples.md --output ../../apps/web/public/writing-samples.pdf",
+    "resume:pdf:writing": "node ../../scripts/render_resume_pdf.mjs --input ../../content/site/writing-samples.md --output ../../apps/web/public/writing-samples.pdf",
     "resume:pdf:all": "node ../../scripts/render_resume_pdf.mjs --all",
     "generate:content": "node ../../scripts/generate-site-content.mjs",
     "predev": "npm run generate:content",

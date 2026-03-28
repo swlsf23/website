@@ -140,7 +140,7 @@ export function ResumePage() {
         </div>
       ) : (
         <p className="api-hint" role="status">
-          No resume in <code>content/personal/resume.md</code>. Add it and run{' '}
+          No resume in <code>content/site/resume.md</code>. Add it and run{' '}
           <code>npm run dev</code> (content is generated at build time).
         </p>
       )}

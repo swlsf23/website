@@ -2,11 +2,11 @@
 /**
  * Markdown + scripts/resume-print.css → PDF (headless Chromium via Playwright).
  *
- * Defaults: content/personal/resume.md → apps/web/public/resume.pdf
+ * Defaults: content/site/resume.md → apps/web/public/resume.pdf
  *   cd apps/web && npm run resume:pdf
  *
- * Optional phone/email: `<!-- resume-contact -->` in content/personal/resume.md or
- * content/personal/writing-samples.md is replaced by content/personal/resume.contact.local.md or
+ * Optional phone/email: `<!-- resume-contact -->` in content/site/resume.md or
+ * content/site/writing-samples.md is replaced by content/site/resume.contact.local.md or
  * RESUME_PHONE / RESUME_EMAIL.
  *
  * Build writing samples PDF (same styling):
@@ -27,16 +27,16 @@ const { marked } = require('marked');
 
 const DEFAULT_JOBS = [
   {
-    src: join(ROOT, 'content/personal/resume.md'),
+    src: join(ROOT, 'content/site/resume.md'),
     out: join(ROOT, 'apps/web/public/resume.pdf'),
   },
   {
-    src: join(ROOT, 'content/personal/writing-samples.md'),
+    src: join(ROOT, 'content/site/writing-samples.md'),
     out: join(ROOT, 'apps/web/public/writing-samples.pdf'),
   },
 ];
 
-const CONTACT = join(ROOT, 'content/personal/resume.contact.local.md');
+const CONTACT = join(ROOT, 'content/site/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
@@ -51,7 +51,7 @@ function parseJobs(argv) {
   if (args.includes('--all')) {
     return DEFAULT_JOBS;
   }
-  let input = join(ROOT, 'content/personal/resume.md');
+  let input = join(ROOT, 'content/site/resume.md');
   let output = join(ROOT, 'apps/web/public/resume.pdf');
   for (let i = 0; i < args.length; i++) {
     const a = args[i];

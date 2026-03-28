@@ -1,42 +1,30 @@
+import { marked } from 'marked'
+import { getSitePage } from '../generated/sitePages.ts'
+
 export function ProjectsPage() {
+  const page = getSitePage('projects')
+  const html = page
+    ? (marked.parse(page.body_md, { async: false }) as string)
+    : ''
+
   return (
     <section className="projects-page" aria-labelledby="projects-heading">
-      <header className="page-header">
-        <h1 id="projects-heading">Projects</h1>
-        <p className="page-lede">
-          A few things I've built or maintain: live sites and source when
-          they're public.
+      {page ? (
+        <>
+          <header className="page-header">
+            <h1 id="projects-heading">{page.title}</h1>
+          </header>
+          <div
+            className="projects-body--md"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </>
+      ) : (
+        <p className="api-hint" role="status">
+          No projects page in <code>content/site/projects.md</code>. Add it and run{' '}
+          <code>npm run dev</code> (content is generated at build time).
         </p>
-      </header>
-      <ul className="project-list">
-        <li>
-          <article className="project-card">
-            <h2 className="project-card-title">Personal website</h2>
-            <p className="project-card-desc">
-              Portfolio and résumé site: React, TypeScript, Vite, and
-              Markdown-driven content.
-            </p>
-            <div className="project-card-actions">
-              <a href="/">View site</a>
-              <a
-                href="https://github.com/swlsf23/website"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
-            </div>
-          </article>
-        </li>
-        <li>
-          <article className="project-card project-card--soon">
-            <h2 className="project-card-title">More to come</h2>
-            <p className="project-card-desc">
-              Additional projects will show up here as I ship them.
-            </p>
-          </article>
-        </li>
-      </ul>
+      )}
     </section>
   )
 }

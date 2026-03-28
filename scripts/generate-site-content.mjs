@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Reads content/personal/*.md and writes apps/web/src/generated/sitePages.ts
+ * Reads content/site/*.md and writes apps/web/src/generated/sitePages.ts
  * for static bundling (no runtime API). Run via npm predev/prebuild in apps/web.
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const PERSONAL = join(ROOT, 'content', 'personal');
+const SITE = join(ROOT, 'content', 'site');
 const OUT_FILE = join(ROOT, 'apps', 'web', 'src', 'generated', 'sitePages.ts');
 
 function parseMarkdownFile(text, stem) {
@@ -52,16 +52,16 @@ function main() {
     'resume.contact.example.md',
     'resume.contact.local.md',
   ])
-  const files = readdirSync(PERSONAL)
+  const files = readdirSync(SITE)
     .filter((f) => f.endsWith('.md') && !skip.has(f))
     .sort();
   if (files.length === 0) {
-    console.warn(`generate-site-content: no .md files in ${PERSONAL}`);
+    console.warn(`generate-site-content: no .md files in ${SITE}`);
   }
 
   const pages = [];
   for (const f of files) {
-    const path = join(PERSONAL, f);
+    const path = join(SITE, f);
     const raw = readFileSync(path, 'utf8');
     const stem = f.replace(/\.md$/i, '');
     pages.push(parseMarkdownFile(raw, stem));
