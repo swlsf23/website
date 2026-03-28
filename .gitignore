@@ -21,6 +21,10 @@ __pycache__/
 # Résumé phone/email (see content/resume.contact.example.md)
 content/resume.contact.local.md
 
+# Generated PDFs (contact baked in; build before deploy — see scripts/render_resume_pdf.mjs)
+apps/web/public/resume.pdf
+apps/web/public/writing-samples.pdf
+
 # Terraform
 .terraform/
 .terraform.lock.hcl
