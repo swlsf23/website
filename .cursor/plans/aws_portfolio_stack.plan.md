@@ -1,12 +1,12 @@
 ---
 name: AWS portfolio stack
-overview: "Portfolio full stack: TypeScript React SPA + Python REST API + PostgreSQL; Node only for frontend tooling. Python for API and deploy scripts. Creative, intentional front-end design (not a generic template). Resume: on-page content from the API, plus a downloadable PDF and a machine-readable/agent-optimized version. S3/CloudFront host only the built SPA (HTML/JS/CSS); site content in Postgres. Terraform + EC2 Docker Compose is the default AWS shape unless you outgrow it."
+overview: "Portfolio full stack: TypeScript React SPA + Python REST API + PostgreSQL; Node only for frontend tooling. Python for API and deploy scripts. Creative, intentional front-end design (not a generic template). Resume: on-page content from the API, plus a downloadable PDF and a machine-readable/agent-optimized version. S3/CloudFront host only the built SPA (HTML/JS/CSS); site content in Postgres. **NON-NEGOTIABLE: NO DOCKER** (not local, not CI, not AWS—never). **Lowest-cost AWS:** S3/CloudFront + **one small EC2**, **Postgres + FastAPI on the same instance** (systemd + venv + Caddy/nginx). **Not RDS** unless you later choose managed DB and higher cost."
 todos:
   - id: scaffold-monorepo
     content: Scaffold apps/web (Vite React TS), apps/api (Python FastAPI), content/, scripts/ (Python CLI entrypoints)
     status: pending
-  - id: local-docker-compose
-    content: "Docker Compose: Postgres + Python API (uvicorn/gunicorn); SPA dev server optional; Alembic migrations; scripts/seed_db loads page content from content/ into Postgres"
+  - id: local-postgres-venv
+    content: "Local Postgres (no Docker) + API venv; SPA dev with CORS/proxy; Alembic; scripts/seed_db loads content/ into Postgres"
     status: pending
   - id: rest-read-api
     content: FastAPI routes reading Postgres; Pydantic models; consistent JSON errors; media/text from DB not S3
@@ -15,7 +15,7 @@ todos:
     content: "scripts/deploy_site.py: build web, upload dist to S3 (built SPA only), invalidate CloudFront; optional terraform apply wrapper—documented in README"
     status: pending
   - id: infra-simple-aws
-    content: IaC for smallest viable deploy (EC2 + Docker Compose + SG, or S3/CF + EC2 API + RDS); secrets via SSM/Secrets Manager
+    content: IaC for lowest-cost deploy (S3/CF + one EC2 + SG; Postgres + API on same host, systemd + venv; Caddy/nginx TLS); secrets via SSM—no Docker, no RDS by default
     status: pending
   - id: github-actions-oidc
     content: "GitHub Actions: Node steps for web build only; Python for tests/deploy scripts; OIDC to AWS"
@@ -30,6 +30,11 @@ isProject: true
 ---
 
 # AWS portfolio stack (DB-backed SPA, Python backend + tooling)
+
+## Non-negotiable constraints
+
+- **Lowest cost** for AWS (single EC2, on-host Postgres, S3 + CloudFront, no NAT).
+- **No Docker anywhere** — no `Dockerfile`, no Compose, no CI container jobs for this app, no ECS/Fargate/App Runner for the API. Use **venv + systemd + OS packages** on EC2 and **native Postgres** on that host.
 
 ## Goal
 
@@ -75,12 +80,13 @@ Starter choices you can swap later (note in an **ADR** when you do):
 | Python env    | `python -m venv` + `requirements.txt` (or `pyproject.toml` later)                                                    | Universal, easy to Google                                         |
 | API framework | **FastAPI**                                                                                                          | OpenAPI docs, good tutorials                                      |
 | DB access     | **SQLAlchemy 2** + **Alembic**                                                                                       | Migrations in git                                                 |
-| AWS layout    | **S3 + CloudFront** for **built SPA files only** + **one EC2** + **Docker Compose** (Postgres + API + reverse proxy) | Few services, no NAT by default; **all page content in Postgres** |
+| AWS layout    | **S3 + CloudFront** for **built SPA** + **one EC2** (Postgres **on-host** + systemd **uvicorn/gunicorn** + **Caddy/nginx**) | **Lowest cost** (no RDS, no NAT); **no Docker**; content in Postgres |
 | IaC           | **Terraform**                                                                                                        | Lots of AWS examples                                              |
 | Scripts       | `scripts/deploy_site.py` etc.                                                                                        | Python-first orchestration                                        |
 
 
-**Defer:** exact EC2 size, domain, testcontainers vs compose profile—until first real deploy.
+**Cost default:** **Postgres on the same EC2** as the API (package install, `localhost` or Unix socket in `DATABASE_URL`). **RDS** is an optional upgrade when you want AWS-managed backups and patching and accept higher monthly cost.
+
 
 ## Architecture (default narrative)
 
@@ -115,7 +121,7 @@ flowchart LR
 ## Local and deploy scripts (Python-first)
 
 - `scripts/deploy_site.py` — `npm run build`, upload `dist/` to S3, invalidate CloudFront.
-- `scripts/deploy_api.py` / `scripts/compose_on_ec2.py` — per your ADR (SSH, SSM, compose).
+- `scripts/deploy_api.py` — optional helper for **SSH/SSM** + restart **systemd** unit on EC2.
 - `scripts/seed_db.py` — parse **page content** under `content/` (e.g. Markdown) and upsert into Postgres; lives in `scripts/`, not under `content/`.
 - `scripts/smoke.py` — `/health` + one content GET after deploy.
 
@@ -123,8 +129,7 @@ Document e.g. `python -m scripts.deploy_site` in the README.
 
 ## Deployment default
 
-- **Option A:** One **EC2** + **Docker Compose**: Postgres + Python API + reverse proxy; SPA either **S3 + CloudFront** or **static files from the same EC2**.
-- **Option B:** S3/CloudFront + **RDS** + API on App Runner / ECS Fargate / etc.
+- **Default (only plan):** **S3 + CloudFront** for the SPA + **one EC2**: **Postgres on that EC2**, **FastAPI** via **systemd** + **venv**, **Caddy/nginx** for TLS. **RDS** only as a later cost tradeoff (managed DB), still with **API on EC2**—no containers.
 
 Avoid **Lambda + private RDS + NAT** as the first milestone unless you budget NAT/VPC endpoints.
 
@@ -150,14 +155,14 @@ So: **seeding** = script in **`scripts/`** + **authoring files in `content/`**. 
 
 ## Implementation phases
 
-1. Local: Docker Compose (Postgres + API); SPA dev with CORS/proxy to API.
+1. Local: Postgres on the machine + API **venv** (no Docker); SPA dev with CORS/proxy to API.
 2. API + DB: read routes; Alembic; `scripts/seed_db` ingests **page files** from `content/` into Postgres.
 3. Scripts: `deploy_site` + env vars (`AWS_PROFILE`, bucket, distribution ID).
 4. IaC + CI: Terraform; GitHub Actions + OIDC.
 
 ## Testing
 
-- **API:** pytest + httpx `TestClient` + Postgres (compose or testcontainers).
+- **API:** pytest + httpx `TestClient` + Postgres (**local install** or a **CI Postgres service**—no Docker).
 - **Web:** Vitest (front-end only).
 
 ## What we are not doing

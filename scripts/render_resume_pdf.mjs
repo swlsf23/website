@@ -5,8 +5,9 @@
  * Defaults: content/resume.md → apps/web/public/resume.pdf
  *   cd apps/web && npm run resume:pdf
  *
- * Optional phone/email: `<!-- resume-contact -->` in content/resume.md is replaced
- * by content/resume.contact.local.md or RESUME_PHONE / RESUME_EMAIL.
+ * Optional phone/email: `<!-- resume-contact -->` in content/resume.md or
+ * content/writing-samples.md is replaced by content/resume.contact.local.md or
+ * RESUME_PHONE / RESUME_EMAIL.
  *
  * Build writing samples PDF (same styling):
  *   npm run resume:pdf:writing
