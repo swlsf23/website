@@ -1,6 +1,6 @@
 # Website
 
-Monorepo: **Vite + React** (`apps/web`), **FastAPI** (`apps/api`), page copy in **`content/`**, seed script in **`scripts/`**. Postgres holds site content at runtime.
+Monorepo: **Vite + React** (`apps/web`), **FastAPI** (`apps/api`), page copy in **`personal/`**, seed script in **`scripts/`**. Postgres holds site content at runtime.
 
 ---
 
@@ -65,7 +65,7 @@ Details: [`apps/web/README.md`](apps/web/README.md)
 
 ### 3. Résumé PDF (manual, scriptable)
 
-[`content/resume.md`](content/resume.md) → [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf); [`content/writing-samples.md`](content/writing-samples.md) → [`apps/web/public/writing-samples.pdf`](apps/web/public/writing-samples.pdf). Same pipeline: **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling lives in [`scripts/resume-print.css`](scripts/resume-print.css).
+[`personal/resume.md`](personal/resume.md) → [`apps/web/public/resume.pdf`](apps/web/public/resume.pdf); [`personal/writing-samples.md`](personal/writing-samples.md) → [`apps/web/public/writing-samples.pdf`](apps/web/public/writing-samples.pdf). Same pipeline: **Markdown → HTML → print CSS → headless Chromium** (Playwright). Styling lives in [`scripts/resume-print.css`](scripts/resume-print.css).
 
 From the **repository root** (installs `apps/web` deps, ensures Chromium for Playwright, then builds **both** PDFs):
 
@@ -132,7 +132,8 @@ Full infra and EC2 notes: [`infra/README.md`](infra/README.md)
 |------|---------|
 | `apps/web/` | React SPA |
 | `apps/api/` | FastAPI + Alembic |
-| `content/` | Authoring Markdown for pages (seeded into Postgres) |
+| `personal/` | Authoring Markdown for pages (seeded into Postgres) |
+| `docs/` | OSS / project documentation (placeholder; see `docs/.gitkeep`) |
 | `generate-resume-pdf.sh` | Repo root: `npm install` in `apps/web`, Playwright Chromium, then `resume.pdf` + `writing-samples.pdf` |
 | `scripts/` | `seed_db.py`, `deploy_site.py`, `bootstrap_api_venv.sh`, `render_resume_pdf.mjs`, `resume-print.css` |
 | `infra/terraform/` | S3 + CloudFront for the built SPA |

@@ -237,3 +237,14 @@
     min-width: 0;
   }
 }
+
+/* Markdown body from content/personal (build-time) */
+.hero-lede--md p {
+  margin: 0 0 0.75rem;
+}
+.hero-lede--md p:last-child {
+  margin-bottom: 0;
+}
+.hero-lede--md a {
+  color: var(--text-h);
+}

@@ -1,6 +1,6 @@
 # Private contact (not committed)
 
-Create `content/resume.contact.local.md` (same directory as this file). That filename is gitignored—do not commit it.
+Create `personal/resume.contact.local.md` (same directory as this file). That filename is gitignored—do not commit it.
 
 Put Markdown in that file only (no `#` headings unless you want them in the PDF). Example one-liner:
 
