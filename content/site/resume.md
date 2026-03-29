@@ -9,7 +9,7 @@ title: Resume
 
 Product & developer content · Doc tooling & infrastructure · AI-assisted workflows · User-focused, feedback-driven
 
-## About
+## Professional summary
 
 I'm a technical writer with extensive experience managing and creating documentation for enterprise SaaS and PaaS, data platforms, APIs, connectors, and data pipelines, including admin and developer workflows.
 
