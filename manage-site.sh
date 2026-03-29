@@ -144,7 +144,13 @@ cmd_site_deploy() {
     echo "aws CLI not found" >&2
     exit 1
   }
+  # Sync hashed assets + index; then force index.html to be revalidated so CloudFront/browsers
+  # don't keep an old index that points at removed JS/CSS after --delete (blank white page).
   aws s3 sync "$WEB_DIR/dist/" "s3://${SPA_S3_BUCKET}/" --delete
+  aws s3 cp "$WEB_DIR/dist/index.html" "s3://${SPA_S3_BUCKET}/index.html" \
+    --content-type "text/html; charset=utf-8" \
+    --cache-control "public, max-age=0, must-revalidate" \
+    --metadata-directive REPLACE
   aws cloudfront create-invalidation \
     --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
     --paths "/*" \

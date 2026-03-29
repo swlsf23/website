@@ -157,6 +157,10 @@ async function renderPdf(browser, { src, out }) {
   const page = await browser.newPage();
   await page.emulateMedia({ media: 'print' });
   await page.setContent(html, { waitUntil: 'load' });
+  // Headless Chromium can rasterize PDF before @font-face files finish loading; Inter then falls back to a system font.
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+  });
   mkdirSync(dirname(out), { recursive: true });
   await page.pdf({
     path: out,

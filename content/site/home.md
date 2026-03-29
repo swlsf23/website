@@ -7,6 +7,6 @@ I’m originally from New Mexico and studied philosophy at New Mexico State Univ
 
 I’ve also paid rent in Barcelona, Paris, and Buenos Aires.
 
-I like to travel and learning languages. I speak English, Spanish, French, and Portuguese, and I’m currently studying Arabic and Mandarin.
+I like to travel and learn languages. I speak English, Spanish, French, and Portuguese, and I’m currently studying Arabic and Mandarin.
 
 I’m also pursuing a BS in Data Science at Arizona State University (online).

@@ -69,6 +69,7 @@
 
 .resume-page {
   padding-top: var(--page-content-pad-top);
+  font-family: var(--sans);
 }
 
 .projects-page {
@@ -633,6 +634,25 @@
 @media (max-width: 720px) {
   .site-header {
     align-items: stretch;
+  }
+
+  /* Avoid a cramped first row + orphaned GitHub/LinkedIn on the right */
+  .site-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .site-nav-pages,
+  .site-nav-social {
+    gap: 0.6rem 0.85rem;
+  }
+
+  .site-nav-social {
+    margin-left: 0;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--border);
+    width: 100%;
   }
 }
 

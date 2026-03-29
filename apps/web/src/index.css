@@ -85,9 +85,19 @@ html {
 #root {
   max-width: 56rem;
   margin: 0 auto;
-  padding: 0 1.25rem;
+  padding-top: 0;
+  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
   min-height: 100svh;
   box-sizing: border-box;
+}
+
+@media (max-width: 720px) {
+  #root {
+    padding-left: max(1.35rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.35rem, env(safe-area-inset-right, 0px));
+  }
 }
 
 body {
