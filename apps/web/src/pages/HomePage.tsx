@@ -9,7 +9,7 @@ export function HomePage() {
 
   return (
     <section className="hero" aria-labelledby="hero-heading">
-      <h1 id="hero-heading">Steven Leslie</h1>
+      <h1 id="hero-heading">About me</h1>
       {home ? (
         <div
           className="hero-lede hero-lede--md"

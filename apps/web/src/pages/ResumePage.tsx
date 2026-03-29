@@ -3,19 +3,12 @@ import { marked } from 'marked'
 import { getSitePage } from '../generated/sitePages.ts'
 import { splitResumeMarkdown } from '../utils/splitResumeMarkdown.ts'
 
-const PREAMBLE_ID = 'resume-preamble'
-
 export function ResumePage() {
   const resume = getSitePage('resume')
   const sections = resume ? splitResumeMarkdown(resume.body_md) : []
 
   const sectionEntries = useMemo(
     () => sections.filter((s) => s.kind === 'section'),
-    [sections],
-  )
-
-  const preambleSection = useMemo(
-    () => sections.find((s) => s.kind === 'preamble'),
     [sections],
   )
 
@@ -49,18 +42,6 @@ export function ResumePage() {
       {resume ? (
         <div className="resume-page-layout">
           <div className="resume-page-main">
-            {preambleSection ? (
-              <div
-                id={PREAMBLE_ID}
-                className="resume-preamble resume-body--md resume-anchor"
-                dangerouslySetInnerHTML={{
-                  __html: marked.parse(preambleSection.bodyMd, {
-                    async: false,
-                  }) as string,
-                }}
-              />
-            ) : null}
-
             <div className="resume-page-single">
               {activeSection
                 ? (() => {

@@ -72,7 +72,7 @@
 }
 
 .projects-page {
-  padding: 2.25rem 0 2.5rem;
+  padding: var(--page-content-pad-top) 0 0;
 }
 
 /* Tighter than default page header; no extra top padding on the h1 block */
@@ -324,12 +324,12 @@
 
 .resume-page-single {
   min-height: 12rem;
-  padding: 1rem 0 2.5rem;
+  padding: 0;
 }
 
 /* Resume: one card per top-level ## section (split at runtime; markdown unchanged) */
 .resume-cards {
-  padding: 1rem 0 2.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -475,7 +475,7 @@
 }
 
 .hero {
-  padding: var(--page-content-pad-top) 0 2rem;
+  padding: var(--page-content-pad-top) 0 0;
 }
 
 .hero h1 {
@@ -496,7 +496,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 2rem 0 0.5rem;
+  padding: var(--page-content-pad-top) 0 0.5rem;
 }
 
 .page-header h1 {
@@ -534,7 +534,7 @@
 }
 
 .section {
-  padding: 2rem 0;
+  padding: 2rem 0 0;
   border-top: 1px solid var(--border);
 }
 

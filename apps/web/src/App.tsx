@@ -4,6 +4,7 @@ import { HomePage } from './pages/HomePage.tsx'
 import { ResumePage } from './pages/ResumePage.tsx'
 import { AboutThisSitePage } from './pages/AboutThisSitePage.tsx'
 import { ProjectsPage } from './pages/ProjectsPage.tsx'
+import { ContactPage } from './pages/ContactPage.tsx'
 import './App.css'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="resume" element={<ResumePage />} />
         <Route path="projects" element={<ProjectsPage />} />
+        <Route path="contact" element={<ContactPage />} />
         <Route path="about-this-site" element={<AboutThisSitePage />} />
       </Route>
     </Routes>
