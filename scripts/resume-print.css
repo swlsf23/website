@@ -8,8 +8,8 @@
   --border: #e8e6e3;
   --border-hr: #c5c0b8;
   --accent: #047857;
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Inter', system-ui, sans-serif;
 }
 
 @page {

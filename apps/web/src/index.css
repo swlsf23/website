@@ -1,3 +1,16 @@
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-400-italic.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-600-italic.css';
+@import '@fontsource/inter/latin-700.css';
+@import '@fontsource/inter/latin-700-italic.css';
+@import '@fontsource/inter/latin-ext-400.css';
+@import '@fontsource/inter/latin-ext-400-italic.css';
+@import '@fontsource/inter/latin-ext-600.css';
+@import '@fontsource/inter/latin-ext-600-italic.css';
+@import '@fontsource/inter/latin-ext-700.css';
+@import '@fontsource/inter/latin-ext-700-italic.css';
+
 :root {
   --text: #5c5566;
   --text-h: #0f0d14;
@@ -11,8 +24,8 @@
   --accent-border: rgba(4, 120, 87, 0.45);
   --social-bg: rgba(240, 238, 234, 0.8);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Inter', system-ui, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   /* One scale site-wide: page titles, card titles, resume sections */

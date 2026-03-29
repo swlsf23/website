@@ -17,7 +17,7 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -41,6 +41,31 @@ const CONTACT_LEGACY = join(ROOT, 'content/site/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
+
+const INTER_SUBSET_CSS = [
+  'latin-400.css',
+  'latin-400-italic.css',
+  'latin-600.css',
+  'latin-600-italic.css',
+  'latin-700.css',
+  'latin-700-italic.css',
+  'latin-ext-400.css',
+  'latin-ext-400-italic.css',
+  'latin-ext-600.css',
+  'latin-ext-600-italic.css',
+  'latin-ext-700.css',
+  'latin-ext-700-italic.css',
+];
+
+function interFontFaceCssForPdf() {
+  const interRoot = dirname(require.resolve('@fontsource/inter/package.json'));
+  const filesBaseUrl = pathToFileURL(join(interRoot, 'files')).href + '/';
+  return INTER_SUBSET_CSS.map((name) => {
+    const abs = join(interRoot, name);
+    const raw = readFileSync(abs, 'utf8');
+    return raw.replace(/\.\/files\//g, filesBaseUrl);
+  }).join('\n');
+}
 
 function resolveUserPath(p) {
   if (!p) return p;
@@ -126,7 +151,7 @@ async function renderPdf(browser, { src, out }) {
   const mdRaw = stripYamlFrontmatter(raw);
   marked.setOptions({ gfm: true, breaks: false });
   const bodyHtml = buildBodyHtml(mdRaw);
-  const cssText = readFileSync(CSS, 'utf8');
+  const cssText = `${interFontFaceCssForPdf()}\n${readFileSync(CSS, 'utf8')}`;
   const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
 
   const page = await browser.newPage();
