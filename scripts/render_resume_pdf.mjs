@@ -6,8 +6,8 @@
  *   cd apps/web && npm run resume:pdf
  *
  * Optional phone/email: `<!-- resume-contact -->` in content/site/resume.md or
- * content/site/writing-samples.md is replaced by content/site/resume.contact.local.md or
- * RESUME_PHONE / RESUME_EMAIL.
+ * content/site/writing-samples.md is replaced by content/site/contact.md,
+ * or if missing, content/site/resume.contact.local.md, or RESUME_PHONE / RESUME_EMAIL.
  *
  * Build writing samples PDF (same styling):
  *   npm run resume:pdf:writing
@@ -36,7 +36,8 @@ const DEFAULT_JOBS = [
   },
 ];
 
-const CONTACT = join(ROOT, 'content/site/resume.contact.local.md');
+const CONTACT = join(ROOT, 'content/site/contact.md');
+const CONTACT_LEGACY = join(ROOT, 'content/site/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
@@ -64,6 +65,17 @@ function parseJobs(argv) {
   return [{ src: input, out: output }];
 }
 
+function stripYamlFrontmatter(text) {
+  if (!text.startsWith('---')) {
+    return text.trim();
+  }
+  const parts = text.split('---', 3);
+  if (parts.length >= 3) {
+    return parts[2].trim();
+  }
+  return text.trim();
+}
+
 function contactMarkdown() {
   const phone = process.env.RESUME_PHONE?.trim();
   const email = process.env.RESUME_EMAIL?.trim();
@@ -74,7 +86,10 @@ function contactMarkdown() {
     return parts.join(' · ');
   }
   if (existsSync(CONTACT)) {
-    return readFileSync(CONTACT, 'utf8').trim();
+    return stripYamlFrontmatter(readFileSync(CONTACT, 'utf8'));
+  }
+  if (existsSync(CONTACT_LEGACY)) {
+    return readFileSync(CONTACT_LEGACY, 'utf8').trim();
   }
   return '';
 }
@@ -99,16 +114,7 @@ function buildBodyHtml(mdRaw) {
   return insertHrBeforeMajorSections(inner);
 }
 
-function stripYamlFrontmatter(text) {
-  if (!text.startsWith('---')) {
-    return text.trim();
-  }
-  const parts = text.split('---', 3);
-  if (parts.length >= 3) {
-    return parts[2].trim();
-  }
-  return text.trim();
-}
+
 
 /** Insert <hr> before each ## heading (major sections, including the first). */
 function insertHrBeforeMajorSections(html) {

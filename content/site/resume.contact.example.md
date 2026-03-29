@@ -1,17 +1,7 @@
-# Private contact (not committed)
+# Résumé contact line
 
-Create `content/site/resume.contact.local.md` (same directory as this file). That filename is gitignored—do not commit it.
+Edit **`content/site/contact.md`** (committed). Its body is merged into the site and PDF wherever **`<!-- resume-contact -->`** appears in `resume.md` or `writing-samples.md`.
 
-Put Markdown in that file only (no `#` headings unless you want them in the PDF). Example one-liner:
+Optional: set **`RESUME_PHONE`** / **`RESUME_EMAIL`** when running PDF generation to override the file (see **`scripts/render_resume_pdf.mjs`**).
 
-    (555) 555-5555 · you@example.com
-
-Or with links:
-
-    [(555) 555-5555](tel:+15555551234) · [you@example.com](mailto:you@example.com)
-
-Alternatively, set environment variables when building; if `RESUME_PHONE` or `RESUME_EMAIL` is set, those are used instead of the local file:
-
-    export RESUME_PHONE="(555) 555-5555"
-    export RESUME_EMAIL="you@example.com"
-    cd apps/web && npm run resume:pdf
+Legacy gitignored file **`resume.contact.local.md`** is no longer used by the generator; use **`contact.md`** instead.

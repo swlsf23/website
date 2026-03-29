@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { SOCIAL_GITHUB, SOCIAL_LINKEDIN } from '../constants/social'
 
 export function Layout() {
   return (
@@ -7,11 +8,29 @@ export function Layout() {
         <div className="site-header-brand">
           <p className="site-name">Steven Leslie</p>
           <nav className="site-nav" aria-label="Primary">
-            <NavLink to="/" end>
-              About
-            </NavLink>
-            <NavLink to="/resume">Resume</NavLink>
-            <NavLink to="/projects">Projects</NavLink>
+            <div className="site-nav-pages">
+              <NavLink to="/" end>
+                About
+              </NavLink>
+              <NavLink to="/resume">Resume</NavLink>
+              <NavLink to="/projects">Projects</NavLink>
+            </div>
+            <div className="site-nav-social">
+              <a
+                href={SOCIAL_GITHUB}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+              <a
+                href={SOCIAL_LINKEDIN}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+              </a>
+            </div>
           </nav>
         </div>
       </header>

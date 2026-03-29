@@ -18,7 +18,7 @@ __pycache__/
 .env.*
 !.env.example
 
-# Résumé phone/email (see content/site/resume.contact.example.md)
+# Legacy — use content/site/contact.md instead
 content/site/resume.contact.local.md
 content/resume.contact.local.md
 

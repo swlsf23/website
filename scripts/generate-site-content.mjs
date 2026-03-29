@@ -2,15 +2,21 @@
 /**
  * Reads content/site/*.md and writes apps/web/src/generated/sitePages.ts
  * for static bundling (no runtime API). Run via npm predev/prebuild in apps/web.
+ *
+ * For resume.md, `<!-- resume-contact -->` is replaced by the body of content/site/contact.md.
  */
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const SITE = join(ROOT, 'content', 'site');
+const CONTACT_MD = join(SITE, 'contact.md');
+const CONTACT_LEGACY = join(SITE, 'resume.contact.local.md');
 const OUT_FILE = join(ROOT, 'apps', 'web', 'src', 'generated', 'sitePages.ts');
+
+const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
 
 function parseMarkdownFile(text, stem) {
   if (text.startsWith('---')) {
@@ -46,11 +52,34 @@ function parseMarkdownFile(text, stem) {
   return { slug: stem, title: firstLine, body_md: text.trim() };
 }
 
+function contactBodyForResumeMerge() {
+  if (existsSync(CONTACT_MD)) {
+    const raw = readFileSync(CONTACT_MD, 'utf8');
+    return parseMarkdownFile(raw, 'contact').body_md.trim();
+  }
+  if (existsSync(CONTACT_LEGACY)) {
+    return readFileSync(CONTACT_LEGACY, 'utf8').trim();
+  }
+  return '';
+}
+
+function mergeResumeContact(rawMd) {
+  if (!CONTACT_MARKER.test(rawMd)) {
+    return rawMd;
+  }
+  const contact = contactBodyForResumeMerge();
+  if (!contact) {
+    return rawMd.replace(CONTACT_MARKER, '');
+  }
+  return rawMd.replace(CONTACT_MARKER, contact);
+}
+
 function main() {
   const skip = new Set([
     'writing-samples.md',
     'resume.contact.example.md',
     'resume.contact.local.md',
+    'contact.md',
   ])
   const files = readdirSync(SITE)
     .filter((f) => f.endsWith('.md') && !skip.has(f))
@@ -62,8 +91,11 @@ function main() {
   const pages = [];
   for (const f of files) {
     const path = join(SITE, f);
-    const raw = readFileSync(path, 'utf8');
+    let raw = readFileSync(path, 'utf8');
     const stem = f.replace(/\.md$/i, '');
+    if (stem === 'resume') {
+      raw = mergeResumeContact(raw);
+    }
     pages.push(parseMarkdownFile(raw, stem));
   }
 
