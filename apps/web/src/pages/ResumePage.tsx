@@ -127,14 +127,6 @@ export function ResumePage() {
               >
                 PDF
               </a>
-              <a
-                className="btn btn-ghost"
-                href="/resume.md"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Machine-readable
-              </a>
             </div>
           </div>
         </div>
