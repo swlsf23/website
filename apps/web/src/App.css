@@ -23,7 +23,7 @@
 
 .site-name {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-h);
@@ -78,7 +78,7 @@
 /* Tighter than default page header; no extra top padding on the h1 block */
 .projects-page .page-header {
   padding: 0;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--page-heading-to-card-gap);
 }
 
 /* Resume cards: flat layout (no chrome here; section styling is in .resume-card--*) */
@@ -96,7 +96,7 @@
 .projects-body--md {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--page-heading-to-card-gap);
 }
 
 .projects-lede {
@@ -114,7 +114,12 @@
   margin-bottom: 0;
 }
 
-.projects-page .project-card {
+/* Same shell as Projects: green accent rail + card (also Home lede, Contact, About) */
+.projects-page .project-card,
+.contact-page .project-card,
+.about-page .project-card,
+.hero .project-card,
+.resume-page .project-card {
   margin: 0;
   padding: 0;
   align-self: stretch;
@@ -129,7 +134,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .projects-page .project-card {
+  .projects-page .project-card,
+  .contact-page .project-card,
+  .about-page .project-card,
+  .hero .project-card,
+  .resume-page .project-card {
     box-shadow:
       0 1px 3px rgba(0, 0, 0, 0.35),
       0 0 0 1px rgba(255, 255, 255, 0.04);
@@ -140,7 +149,7 @@
   padding: 1.15rem 1.25rem 1.2rem;
 }
 
-.project-card-body h2 {
+.project-card-body h2:not(.resume-card-heading) {
   margin: 0 0 0.75rem;
   padding: 0;
   border: none;
@@ -163,7 +172,7 @@
 }
 
 /*
- * Footer link row: last paragraph with two+ links (e.g. View site · GitHub).
+ * Footer link row: last paragraph with two+ links (e.g. View site and GitHub).
  * Do not use h2+p+p — that breaks when body has multiple paragraphs before links.
  */
 .project-card-body p:last-child:has(a:nth-of-type(2)) {
@@ -214,6 +223,26 @@
   text-decoration: none;
 }
 
+.about-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-heading-to-card-gap);
+}
+
+.about-page .page-header {
+  padding-bottom: 0;
+}
+
+.contact-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-heading-to-card-gap);
+}
+
+.contact-page .page-header {
+  padding-bottom: 0;
+}
+
 /* Two columns on wide viewports: main + sticky TOC */
 .resume-page-layout {
   display: flex;
@@ -229,7 +258,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2cm;
+  gap: 2rem;
   width: 100%;
   border-top: 1px solid var(--border);
   padding-top: 1rem;
@@ -327,6 +356,58 @@
   padding: 0;
 }
 
+/* Match .page-header h1 (0.75rem) + gap/padding to next block (see .contact-page / .page-header) */
+.resume-summary-plain {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-heading-to-card-gap);
+}
+
+.resume-summary-heading {
+  margin: 0 0 0.75rem;
+}
+
+.resume-experience-stack,
+.resume-education-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-heading-to-card-gap);
+}
+
+.resume-experience-heading,
+.resume-education-heading {
+  margin: 0 0 0.75rem;
+}
+
+.resume-experience-preamble,
+.resume-education-preamble {
+  margin-bottom: 0;
+}
+
+.resume-experience-cards,
+.resume-education-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--page-heading-to-card-gap);
+}
+
+.resume-experience-cards .resume-card--section .resume-body--md h3,
+.resume-education-cards .resume-card--section .resume-body--md h3 {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
+  font-size: var(--type-subheading);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.resume-experience-cards .resume-body--md h3:first-child,
+.resume-education-cards .resume-body--md h3:first-child {
+  margin-top: 0;
+}
+
 /* Resume: one card per top-level ## section (split at runtime; markdown unchanged) */
 .resume-cards {
   padding: 0;
@@ -364,7 +445,7 @@
   padding-bottom: 0;
 }
 
-/* Job titles: subtle timeline rail inside Experience */
+/* Job titles: subtle timeline rail (Education, etc.; Experience uses multi-card layout above) */
 .resume-card--section .resume-body--md h3 {
   margin-left: 0;
   padding-left: 0.85rem;
@@ -478,8 +559,12 @@
   padding: var(--page-content-pad-top) 0 0;
 }
 
+.hero .project-card {
+  max-width: 38rem;
+}
+
 .hero h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--page-heading-to-card-gap);
   font-size: var(--type-title);
   line-height: var(--type-title-lh);
   letter-spacing: var(--type-title-track);
@@ -496,7 +581,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: var(--page-content-pad-top) 0 0.5rem;
+  padding: var(--page-content-pad-top) 0 var(--page-heading-to-card-gap);
 }
 
 .page-header h1 {
@@ -531,32 +616,6 @@
 
 .page-list li {
   margin-bottom: 0.35rem;
-}
-
-.section {
-  padding: 2rem 0 0;
-  border-top: 1px solid var(--border);
-}
-
-.section h2 {
-  margin: 0 0 0.75rem;
-  font-size: var(--type-subheading);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.section p {
-  margin: 0;
-  max-width: 40rem;
-  line-height: 1.6;
-}
-
-.section-contact a {
-  color: var(--text-h);
-}
-
-.section-contact a:hover {
-  text-decoration: underline;
 }
 
 .site-footer {

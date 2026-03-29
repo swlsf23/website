@@ -29,7 +29,7 @@
   --mono: ui-monospace, Consolas, monospace;
 
   /* One scale site-wide: page titles, card titles, resume sections */
-  --type-title: clamp(1.65rem, 3.5vw, 2.05rem);
+  --type-title: clamp(1.52rem, 3.2vw, 1.9rem);
   --type-title-lh: 1.18;
   --type-title-track: -0.03em;
   --type-lede: 1.05rem;
@@ -39,8 +39,10 @@
 
   /* First line of main content (title) aligns across About / Resume / Projects */
   --page-content-pad-top: 3rem;
-  /* Space from last line of page content to footer rule (same on all routes) */
-  --page-content-pad-bottom: 2.5rem;
+  /* Space from page/section title to first card (home, resume, projects, contact, about) */
+  --page-heading-to-card-gap: 1.25rem;
+  /* Space from last line of page content to the footer rule (footer only — not section dividers) */
+  --page-content-footer-gap: 2rem;
 
   font: 17px/150% var(--sans);
   letter-spacing: 0.01em;
@@ -94,7 +96,7 @@ body {
 
 main {
   text-align: left;
-  padding-bottom: var(--page-content-pad-bottom);
+  padding-bottom: var(--page-content-footer-gap);
 }
 
 h1,

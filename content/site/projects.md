@@ -3,7 +3,7 @@ slug: projects
 title: Projects
 ---
 
-Projects I've built or maintain, with links to live sites and source code.
+These are projects I've built or maintain, with links to live sites and source code.
 
 ## Personal website
 
@@ -13,7 +13,7 @@ AWS resources are managed with Terraform. GitHub Actions build and deploys on pu
 
 The resume and writing samples use the same Markdown for the site and for PDF export: marked for HTML, Playwright with Chromium for PDF, CSS for layout.
 
-[View site](/) · [GitHub](https://github.com/swlsf23/website)
+[View site](/) [GitHub](https://github.com/swlsf23/website)
 
 ## More to come
 

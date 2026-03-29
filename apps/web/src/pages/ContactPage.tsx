@@ -6,19 +6,21 @@ export function ContactPage() {
       <header className="page-header">
         <h1 id="contact-heading">Contact</h1>
       </header>
-      <div className="projects-body--md">
-        <p>
-          The best way to contact me is on{' '}
-          <a
-            href={SOCIAL_LINKEDIN}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LinkedIn
-          </a>
-          .
-        </p>
-      </div>
+      <article className="project-card">
+        <div className="project-card-body">
+          <p>
+            The best way to contact me is on{' '}
+            <a
+              href={SOCIAL_LINKEDIN}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn
+            </a>
+            .
+          </p>
+        </div>
+      </article>
     </section>
   )
 }

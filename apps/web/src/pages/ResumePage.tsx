@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { marked } from 'marked'
 import { getSitePage } from '../generated/sitePages.ts'
-import { splitResumeMarkdown } from '../utils/splitResumeMarkdown.ts'
+import {
+  splitEducationBody,
+  splitExperienceBody,
+  splitResumeMarkdown,
+} from '../utils/splitResumeMarkdown.ts'
 
 export function ResumePage() {
   const resume = getSitePage('resume')
@@ -37,6 +41,20 @@ export function ResumePage() {
 
   const activeSection = sectionEntries.find((s) => s.id === activeSectionId)
 
+  const experienceSplit = useMemo(() => {
+    if (!activeSection || activeSection.id !== 'section-experience') {
+      return null
+    }
+    return splitExperienceBody(activeSection.bodyMd)
+  }, [activeSection])
+
+  const educationSplit = useMemo(() => {
+    if (!activeSection || activeSection.id !== 'section-education') {
+      return null
+    }
+    return splitEducationBody(activeSection.bodyMd)
+  }, [activeSection])
+
   return (
     <article className="resume-page">
       {resume ? (
@@ -45,26 +63,187 @@ export function ResumePage() {
             <div className="resume-page-single">
               {activeSection
                 ? (() => {
+                    const titleId = `${activeSection.id}-title`
+
+                    if (
+                      experienceSplit &&
+                      experienceSplit.positions.length > 0
+                    ) {
+                      const { preamble, positions } = experienceSplit
+                      return (
+                        <div
+                          key={activeSection.id}
+                          id={activeSection.id}
+                          className="resume-experience-stack resume-anchor"
+                          aria-labelledby={titleId}
+                        >
+                          <h2
+                            id={titleId}
+                            className="resume-card-heading resume-experience-heading"
+                          >
+                            {activeSection.title}
+                          </h2>
+                          {preamble ? (
+                            <div
+                              className="resume-experience-preamble resume-body--md"
+                              dangerouslySetInnerHTML={{
+                                __html: marked.parse(preamble, {
+                                  async: false,
+                                }) as string,
+                              }}
+                            />
+                          ) : null}
+                          <div className="resume-experience-cards">
+                            {positions.map((pos) => {
+                              const html = marked.parse(pos.bodyMd, {
+                                async: false,
+                              }) as string
+                              return (
+                                <article
+                                  key={pos.id}
+                                  id={pos.id}
+                                  className="resume-card resume-card--section project-card"
+                                >
+                                  <div className="project-card-body">
+                                    <div
+                                      className="resume-card-body resume-body--md"
+                                      dangerouslySetInnerHTML={{ __html: html }}
+                                    />
+                                  </div>
+                                </article>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    }
+
+                    if (educationSplit && educationSplit.universities.length > 0) {
+                      const { preamble, universities } = educationSplit
+                      return (
+                        <div
+                          key={activeSection.id}
+                          id={activeSection.id}
+                          className="resume-education-stack resume-anchor"
+                          aria-labelledby={titleId}
+                        >
+                          <h2
+                            id={titleId}
+                            className="resume-card-heading resume-education-heading"
+                          >
+                            {activeSection.title}
+                          </h2>
+                          {preamble ? (
+                            <div
+                              className="resume-education-preamble resume-body--md"
+                              dangerouslySetInnerHTML={{
+                                __html: marked.parse(preamble, {
+                                  async: false,
+                                }) as string,
+                              }}
+                            />
+                          ) : null}
+                          <div className="resume-education-cards">
+                            {universities.map((u) => {
+                              const uniHtml = marked.parse(u.bodyMd, {
+                                async: false,
+                              }) as string
+                              return (
+                                <article
+                                  key={u.id}
+                                  id={u.id}
+                                  className="resume-card resume-card--section project-card"
+                                >
+                                  <div className="project-card-body">
+                                    <div
+                                      className="resume-card-body resume-body--md"
+                                      dangerouslySetInnerHTML={{
+                                        __html: uniHtml,
+                                      }}
+                                    />
+                                  </div>
+                                </article>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    }
+
                     const html = marked.parse(activeSection.bodyMd, {
                       async: false,
                     }) as string
-                    const titleId = `${activeSection.id}-title`
+
+                    if (activeSection.id === 'section-education') {
+                      return (
+                        <div
+                          key={activeSection.id}
+                          id={activeSection.id}
+                          className="resume-summary-plain resume-anchor"
+                          aria-labelledby={titleId}
+                        >
+                          <h2
+                            id={titleId}
+                            className="resume-card-heading resume-summary-heading"
+                          >
+                            {activeSection.title}
+                          </h2>
+                          <article className="resume-card resume-card--section project-card">
+                            <div className="project-card-body">
+                              <div
+                                className="resume-card-body resume-body--md"
+                                dangerouslySetInnerHTML={{ __html: html }}
+                              />
+                            </div>
+                          </article>
+                        </div>
+                      )
+                    }
+
+                    if (activeSection.id === 'section-professional-summary') {
+                      return (
+                        <div
+                          key={activeSection.id}
+                          id={activeSection.id}
+                          className="resume-summary-plain resume-anchor"
+                          aria-labelledby={titleId}
+                        >
+                          <h2
+                            id={titleId}
+                            className="resume-card-heading resume-summary-heading"
+                          >
+                            {activeSection.title}
+                          </h2>
+                          <article className="resume-card resume-card--section project-card">
+                            <div className="project-card-body">
+                              <div
+                                className="resume-card-body resume-body--md"
+                                dangerouslySetInnerHTML={{ __html: html }}
+                              />
+                            </div>
+                          </article>
+                        </div>
+                      )
+                    }
+
                     return (
                       <article
                         key={activeSection.id}
                         id={activeSection.id}
-                        className="resume-card resume-card--section resume-anchor"
+                        className="resume-card resume-card--section project-card resume-anchor"
                         aria-labelledby={titleId}
                       >
-                        <header className="resume-card-header">
-                          <h2 id={titleId} className="resume-card-heading">
-                            {activeSection.title}
-                          </h2>
-                        </header>
-                        <div
-                          className="resume-card-body resume-body--md"
-                          dangerouslySetInnerHTML={{ __html: html }}
-                        />
+                        <div className="project-card-body">
+                          <header className="resume-card-header">
+                            <h2 id={titleId} className="resume-card-heading">
+                              {activeSection.title}
+                            </h2>
+                          </header>
+                          <div
+                            className="resume-card-body resume-body--md"
+                            dangerouslySetInnerHTML={{ __html: html }}
+                          />
+                        </div>
                       </article>
                     )
                   })()

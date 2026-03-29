@@ -11,10 +11,12 @@ export function HomePage() {
     <section className="hero" aria-labelledby="hero-heading">
       <h1 id="hero-heading">About me</h1>
       {home ? (
-        <div
-          className="hero-lede hero-lede--md"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        <article className="project-card">
+          <div
+            className="project-card-body hero-lede hero-lede--md"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </article>
       ) : (
         <p className="hero-lede api-hint" role="status">
           No home page in <code>content/site/home.md</code>. Add it and run{' '}
