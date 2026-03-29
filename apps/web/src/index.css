@@ -38,7 +38,7 @@
   --type-h3: 1rem;
 
   /* First line of main content (title) aligns across About / Resume / Projects */
-  --page-content-pad-top: 3rem;
+  --page-content-pad-top: 2.25rem;
   /* Space from page/section title to first card (home, resume, projects, contact, about) */
   --page-heading-to-card-gap: 1.25rem;
   /* Space from last line of page content to the footer rule (footer only — not section dividers) */
