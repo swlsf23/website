@@ -24,7 +24,7 @@ Usage: ./manage-site.sh <command>
   infra-create         terraform init (if needed) + terraform apply
   infra-destroy        type yes to confirm, then terraform destroy
   infra-import-bucket  terraform import aws_s3_bucket.spa (if apply fails with BucketAlreadyExists)
-  site-build           npm ci, Playwright PDFs, npm run build → apps/web/dist
+  site-build           npm ci, Playwright PDFs, npm run build:site → apps/web/dist
   site-deploy          aws s3 sync dist/ to bucket + CloudFront invalidation (needs AWS CLI)
 
 Deploy reads SPA_S3_BUCKET, CLOUDFRONT_DISTRIBUTION_ID, AWS_REGION if set; else terraform output.
@@ -71,6 +71,7 @@ resolve_deploy_env() {
   export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-$AWS_REGION}"
 
   if [[ -n "${SPA_S3_BUCKET:-}" && -n "${CLOUDFRONT_DISTRIBUTION_ID:-}" ]]; then
+    export SPA_S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID
     return 0
   fi
   if [[ ! -d "$TF_DIR/.terraform" ]]; then
@@ -128,8 +129,9 @@ cmd_site_build() {
   cd "$WEB_DIR"
   npm ci
   npx playwright install chromium
-  npm run resume:pdf:all
-  npm run build
+  # build:site = generate:content (resume.md → sitePages.ts) + PDFs + bundle. `npm run build:site`
+  # does not run npm's `prebuild` hook, so generate:content must be explicit in that script.
+  npm run build:site
   echo "Built: $WEB_DIR/dist" >&2
 }
 
@@ -144,17 +146,8 @@ cmd_site_deploy() {
     echo "aws CLI not found" >&2
     exit 1
   }
-  # Sync hashed assets + index; then force index.html to be revalidated so CloudFront/browsers
-  # don't keep an old index that points at removed JS/CSS after --delete (blank white page).
-  aws s3 sync "$WEB_DIR/dist/" "s3://${SPA_S3_BUCKET}/" --delete
-  aws s3 cp "$WEB_DIR/dist/index.html" "s3://${SPA_S3_BUCKET}/index.html" \
-    --content-type "text/html; charset=utf-8" \
-    --cache-control "public, max-age=0, must-revalidate" \
-    --metadata-directive REPLACE
-  aws cloudfront create-invalidation \
-    --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
-    --paths "/*" \
-    --output text
+  export SPA_S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID
+  DIST="$WEB_DIR/dist" "$ROOT/scripts/deploy-dist-to-s3.sh"
   echo "Deploy complete." >&2
 }
 

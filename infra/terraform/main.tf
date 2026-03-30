@@ -43,6 +43,12 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
   name = "Managed-CachingOptimized"
 }
 
+# Default behavior uses this so HTML / /resume / PDFs are not served stale from the edge
+# while S3 already has the new objects (bucket correct, browser still old = CloudFront cache).
+data "aws_cloudfront_cache_policy" "caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
 data "aws_cloudfront_origin_request_policy" "cors_s3" {
   name = "Managed-CORS-S3Origin"
 }
@@ -62,12 +68,25 @@ resource "aws_cloudfront_distribution" "spa" {
     origin_access_control_id = aws_cloudfront_origin_access_control.spa.id
   }
 
-  default_cache_behavior {
+  # Hashed JS/CSS: safe to cache at the edge (new deploy = new filenames).
+  ordered_cache_behavior {
+    path_pattern             = "/assets/*"
     allowed_methods          = ["GET", "HEAD", "OPTIONS"]
     cached_methods           = ["GET", "HEAD"]
     target_origin_id         = "s3-spa"
     compress                 = true
     cache_policy_id          = data.aws_cloudfront_cache_policy.caching_optimized.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3.id
+    viewer_protocol_policy   = "redirect-to-https"
+  }
+
+  # index.html, /, /resume, PDFs, etc.: do not cache at CloudFront (always fetch current S3 object).
+  default_cache_behavior {
+    allowed_methods          = ["GET", "HEAD", "OPTIONS"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "s3-spa"
+    compress                 = true
+    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.cors_s3.id
     viewer_protocol_policy   = "redirect-to-https"
   }

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:site": "npm run generate:content && npm run resume:pdf:all && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "resume:pdf": "node ../../scripts/render_resume_pdf.mjs",
