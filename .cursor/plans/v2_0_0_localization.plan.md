@@ -1,0 +1,180 @@
+---
+name: v2 i18n localization
+overview: Add locale-prefixed routes (en, fr, es, pt), parallel Markdown content per locale with industry-standard URLs and SEO hints, then layer GitHub Actions + Anthropic (Claude) API-driven translation PRs (one PR per target language) for human review before deploy.
+todos:
+  - id: decide-url-locale
+    content: Confirm pt-BR vs pt-PT and final path prefix scheme (/pt vs /pt-br)
+    status: pending
+  - id: routing-lang-param
+    content: Add /:lang routes, default redirect, locale-prefixed NavLinks + switcher
+    status: pending
+  - id: content-folders-generator
+    content: Restructure content/site per locale; extend generate-site-content + page consumers
+    status: pending
+  - id: ui-strings-seo
+    content: Per-locale chrome strings; html lang + hreflang
+    status: pending
+  - id: automation-prs
+    content: "GHA on EN path changes: LLM translate per lang matrix; one PR per language"
+    status: pending
+  - id: llm-translation-contract
+    content: Define LLM API inputs, prompts, output validation, and failure handling per changed file
+    status: pending
+  - id: anthropic-messages-api
+    content: Wire Anthropic Messages API in CI (ANTHROPIC_API_KEY); pick Claude model id + pin in workflow
+    status: pending
+isProject: false
+---
+
+# v2.0.0 — Localization plan
+
+## Current baseline (relevant to design)
+
+- Routes live in `[apps/web/src/App.tsx](apps/web/src/App.tsx)` as nested routes under a single `[Layout](apps/web/src/components/Layout.tsx)`; there is no locale segment today.
+- Page copy is built from `[content/site/*.md](content/site/)` via `[scripts/generate-site-content.mjs](scripts/generate-site-content.mjs)` into a single `[apps/web/src/generated/sitePages.ts](apps/web/src/generated/sitePages.ts)` consumed at build time.
+- `[index.html](apps/web/index.html)` is fixed `lang="en"`.
+
+---
+
+## 1. URL and locale conventions (industry practice)
+
+**Recommended URL shape:** **locale prefix in the path** — e.g. `/en/`, `/fr/`, `/es/`, `/pt/` (or `/pt-br/` if you standardize on **Brazilian Portuguese**; **confirm `pt-BR` vs `pt-PT`** for “PT” before implementation).
+
+
+| Practice                 | What to do                                                                                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Stable URLs per language | Every public page lives under `/:lang/...` (same path segments after the locale).                                                                                  |
+| Default entry            | Redirect `/` → `/en/` (or detect `Accept-Language` with a safe fallback to `en`).                                                                                  |
+| BCP 47 tags              | Use `en`, `fr`, `es`, `pt-BR` (or `pt`) consistently in code and metadata.                                                                                         |
+| `html lang`              | Set per-route (e.g. React Helmet or a small effect updating `document.documentElement.lang`).                                                                      |
+| `hreflang`               | Emit `<link rel="alternate" hreflang="..." href="...">` for the same page across locales (helps search engines; optional for a personal portfolio but “standard”). |
+| Language switcher        | In `Layout`, links to **same path** in another locale (e.g. from `/fr/resume` → `/es/resume`), not only to home.                                                   |
+
+
+**React Router shape (conceptual):** a parent route `/:lang` (valid `lang` allowlist) wrapping existing `resume`, `projects`, `contact`, and index; `NavLink` targets become `/${lang}/resume`, etc.
+
+---
+
+## 2. Content model and build pipeline
+
+**Directory layout (parallel trees, EN as source of truth for automation):**
+
+- `content/site/en/` — English Markdown (migrate current files here, or keep `content/site/` as `en` only via convention; **pick one tree** and document it).
+- `content/site/fr/`, `content/site/es/`, `content/site/pt/` — translated Markdown, same filenames per page (e.g. `home.md`, `resume.md`, …) so the generator stays deterministic.
+
+**Generator (`[scripts/generate-site-content.mjs](scripts/generate-site-content.mjs)`):**
+
+- Extend to scan each locale folder (or glob `content/site/{en,fr,es,pt}/`**) and emit **either**:
+  - one module per locale (e.g. `sitePages.en.ts`, `sitePages.fr.ts`, …), **or**
+  - a single `sitePages.ts` exporting a map `Record<Locale, SitePageData>` keyed by slug.
+- **Resume contact merge:** today `resume.md` merges `contact.md` via `<!-- resume-contact -->`. Replicate **per locale** (each locale has its own `contact.md` and `resume.md`).
+
+**Runtime:** pages (`[HomePage.tsx](apps/web/src/pages/HomePage.tsx)`, etc.) read `useParams().lang` and call `getSitePage(lang, 'home')` (or equivalent) instead of a single global `getSitePage('home')`.
+
+**UI chrome (nav labels, footer strings):** not in Markdown today; use **small JSON dictionaries** per locale (`apps/web/src/locales/en.json`, …) or a minimal i18n helper—avoid pulling a heavy framework unless you need pluralization.
+
+---
+
+## 3. Scope decisions to lock before coding
+
+- **Portuguese:** `pt-BR` vs `pt-PT` (affects URL and `hreflang`).
+- **PDFs:** Keep **English-only** PDFs in v2, or add a second phase for locale-specific PDFs (Playwright per language)? Resume pipeline is non-trivial (`[ResumePage](apps/web/src/pages/ResumePage.tsx)` + `[splitResumeMarkdown](apps/web/src/utils/splitResumeMarkdown.ts)`).
+- **Deploy:** Static hosting already serves `index.html` for unknown paths; locale-prefixed client routes **should work** once the router matches `/fr/`* the same as `/`. No CloudFront change strictly required unless you add server-only redirects for `/` → `/en/`.
+
+---
+
+## 4. Automated translation PRs (post–content-ready)
+
+**Goal:** When **English** source Markdown changes, **three separate PRs** (one per target language) each containing updated `content/site/{fr|es|pt}/...` files, for human review.
+
+**Trigger:** GitHub Actions `on.push` to `main` (or `pull_request` only if you prefer not to translate on every direct push) with `**paths` filtered to `content/site/en/`**** (or your chosen EN path).
+
+**Job per target language (matrix: `fr`, `es`, `pt`):**
+
+1. Checkout branch, optionally **create a branch** `i18n/auto-<lang>-<short-sha>` from `main`.
+2. **Diff or identify** which EN files changed (git diff against previous commit or merge-base).
+3. For each changed file, run the **LLM translation contract** below (one API call per file per language, unless you later batch small files).
+4. Write outputs to the matching paths under `content/site/<lang>/`.
+5. **Open one PR per language** (e.g. `gh pr create` or GitHub REST API): title like `[i18n] Sync fr from EN <sha>`, body listing files touched, link to EN commit.
+
+**Secrets:** The API key **never** appears in the repository: not in Markdown, not in workflow YAML as a literal, not in committed `.env`. Store **`ANTHROPIC_API_KEY`** only as a **GitHub Actions repository secret** (or **environment** secret with optional protection rules). The workflow reads it as `secrets.ANTHROPIC_API_KEY` and passes it into the step environment. Local dev uses a **gitignored** `.env` or shell env—never commit those files. `GITHUB_TOKEN` is provided by Actions for PR creation (not your Anthropic key).
+
+**Human review:** As you specified—merge when satisfied; your existing deploy (e.g. `build:site` + S3) then picks up that locale’s generated bundle.
+
+**Optional guardrails:** only run if EN files changed; skip if PR already exists for same batch; max file size; **fail closed** if LLM output fails validation (frontmatter parse, required slugs).
+
+---
+
+### 4.1 LLM translation contract (main design area)
+
+This is the piece to resolve before implementation: **what exactly** each API call sends and **what** the model must return.
+
+**Request inputs (every call should include):**
+
+
+| Input                             | Purpose                                                                                                                                                                                                                                    |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `target_locale`                   | BCP 47 tag (e.g. `fr`, `es`, `pt-BR`) and short natural-language name for the prompt.                                                                                                                                                      |
+| `source_path`                     | Repo-relative path e.g. `content/site/en/resume.md` (helps the model know file role).                                                                                                                                                      |
+| `source_text`                     | Full **current** English file as UTF-8 (the single source of truth for this run).                                                                                                                                                          |
+| `previous_translation` (optional) | If `content/site/<lang>/same-file.md` exists, pass its **previous** contents so the model can preserve unchanged paragraphs and only translate deltas—or re-translate fully from EN; **pick one strategy** (minimal-diff vs full replace). |
+| `glossary` (optional)             | Small fixed terms (e.g. product names, “MuleSoft”, your name) that must stay untranslated or follow a fixed spelling.                                                                                                                      |
+
+
+**System / developer instructions (must be fixed strings in code, versioned):**
+
+- Output **only** the translated Markdown file body: **no** surrounding commentary, no markdown fences unless the source legitimately contains them.
+- **Preserve** YAML frontmatter: `slug` and `title` values must remain **identical** to the English file (titles are often left in English for nav consistency, or **decide** whether `title` is localized—if localized, still keep `slug` stable).
+- **Preserve** Markdown structure: heading levels (`##`, `###`), list markers, link URLs, bare `mailto:`/`tel:` targets, and **literal** HTML comments such as `<!-- resume-contact -->` (do not translate inside comments).
+- **Do not** add or remove sections in `resume.md` relative to EN (section headings drive parsing); translate heading text only if the parser keys off `##` titles—see risk: may need **stable section IDs** in EN or a convention that translated headings still match `splitResumeMarkdown` expectations (this may require a **pre-v2** audit of `splitResumeMarkdown`).
+
+**User prompt (per file):**
+
+- A single block: “Translate the following Markdown from English to language. Follow the rules above.” plus `source_text` (and optional `previous_translation` / glossary).
+
+**Output validation (before writing to disk):**
+
+1. Parse frontmatter if present; **fail** if `slug` missing or differs from EN source.
+2. **Fail** if required markers (e.g. `<!-- resume-contact -->`) are missing when EN had them.
+3. Optional: run the same **generator** or a small parser on the output in CI to ensure it does not break `generate-site-content` / resume splitting.
+4. **Encoding:** UTF-8 only; normalize newlines to LF.
+
+**Operational concerns:**
+
+- **Token limits:** For `resume.md`, if the file is large, either chunk by section (harder) or use a model with a large context window; **or** translate section-by-section with a shared glossary (more complex).
+- **Idempotency:** Re-running on the same EN commit should produce the same PR content (or skip if no diff).
+- **Vendor (decided):** **Anthropic only**—Messages API, `ANTHROPIC_API_KEY`, Claude model id pinned in workflow/script. **Account:** you need an Anthropic Console account with **billing enabled** (usage-based charges; not usually a fixed monthly “subscription,” but a payment method and a key allowed for CI). At portfolio volume, cost stays tiny; optional **usage limits/alerts** in the console for safety. **store** model name and prompt version in the workflow or script for reproducibility.
+
+**Open decisions to record in the plan when you choose:**
+
+- Whether `title` in frontmatter is **localized** or **English-only** across locales.
+- **Full-file retranslate** vs **minimal edit** when `previous_translation` exists.
+- Whether **one PR per language per push** always runs or only when a label / manual `workflow_dispatch` is used (noise control).
+
+### 4.2 Anthropic: subscribe / billing (prerequisite)
+
+Before the translation workflow can call the API from GitHub Actions, **subscribe** in the sense of **enabling API access with billing** on [Anthropic’s console](https://console.anthropic.com): create a workspace, add a payment method if required, generate an **`ANTHROPIC_API_KEY`**, and store it only as described in **Secrets** above. Local testing uses the same key from a **gitignored** `.env`. Pricing is per token—confirm current rates on Anthropic’s pricing page; rare small-file runs stay in the **cents** range for this POC.
+
+### 4.3 Rate limits, spend controls, and leaked keys
+
+- **Rate limits:** Anthropic applies **request and token rate limits** (they scale with your **usage/spend tier**). Heavy traffic gets **429** responses until the window resets—normal for APIs. For this repo’s **rare, small** translation runs, you are unlikely to hit limits unless something is wrong or misconfigured.
+- **Bill shock / stolen key:** There is **no substitute** for **console controls + habits**: use **[Limits](https://console.anthropic.com/settings/limits)** and **[Cost](https://console.anthropic.com/settings/cost)** in the Claude Console to see what Anthropic offers today (usage alerts, monthly spend caps if available—features evolve, verify in-product). **Rotate the key** immediately if it leaks; **revoke** the old key in the console, add a **new** key, update **only** the GitHub secret. Prefer a **dedicated API key** for CI (label it `github-actions-translate`) so you can revoke one key without touching other uses. Enable **GitHub secret scanning** on the repo (default on public repos) so accidentally committed keys trigger alerts.
+- **Defense in depth:** Restrict **who can run** the translation workflow (e.g. `workflow_dispatch` only, or **environment** protection rules requiring approval) if you want to cap how often the key is used from CI, independent of Anthropic’s limits.
+
+---
+
+## 5. Implementation order (suggested)
+
+1. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (FR / ES / PT).
+2. **Locale-aware UI strings** — nav, footer, document title pattern.
+3. **Content pipeline** — folder layout + generator + `getSitePage(lang, …)`; migrate EN files; add FR/ES/PT stubs (can duplicate EN initially for smoke test).
+4. **SEO** — `html lang` + `hreflang` (Helmet or lightweight `useEffect`).
+5. **Automation** — workflow + LLM script + PR template for reviewers.
+
+---
+
+## 6. Risks (short)
+
+- **Resume structure:** Translations must not break `splitResumeMarkdown` / section IDs; consider validating against a schema or golden tests.
+- **Cost/latency:** LLM per file per push; batching and idempotency help.
+- **Drift:** If EN changes often, three PRs can be noisy—tune triggers (e.g. weekly batch) if needed.
