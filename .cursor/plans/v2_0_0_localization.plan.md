@@ -9,7 +9,7 @@ todos:
     content: Add /:lang routes, default redirect, locale-prefixed NavLinks + switcher
     status: pending
   - id: content-folders-generator
-    content: Restructure content/site per locale; extend generate-site-content + page consumers
+    content: "EN in content/site/; translations in content/locale/{fr,es,pt}; extend generate-site-content + pages"
     status: pending
   - id: ui-strings-seo
     content: Per-locale chrome strings; html lang + hreflang
@@ -57,17 +57,19 @@ isProject: false
 
 ## 2. Content model and build pipeline
 
-**Directory layout (parallel trees, EN as source of truth for automation):**
+**Directory layout — English separate from translations (search / review ergonomics):**
 
-- `content/site/en/` — English Markdown (migrate current files here, or keep `content/site/` as `en` only via convention; **pick one tree** and document it).
-- `content/site/fr/`, `content/site/es/`, `content/site/pt/` — translated Markdown, same filenames per page (e.g. `home.md`, `resume.md`, …) so the generator stays deterministic.
+- **English only (source of truth):** **`content/site/`** — keep the current flat layout (`home.md`, `resume.md`, `projects.md`, `contact.md`, …). Scoped search (`rg`, IDE) under `content/site/` hits **only** English, not FR/ES/PT.
+- **Translated Markdown:** separate root, **mirrored filenames**, e.g. **`content/locale/fr/`**, **`content/locale/es/`**, **`content/locale/pt/`** with the same stems as EN. This avoids mixing locales (or future `.po`/gettext-style files) alongside EN in one tree, which pollutes “find in English source” workflows.
+
+**First step on the v2 branch:** create **`content/locale/fr`**, **`es`**, **`pt`** (add stub `.md` files or empty placeholders as needed) before wiring the generator and routes.
 
 **Generator (`[scripts/generate-site-content.mjs](scripts/generate-site-content.mjs)`):**
 
-- Extend to scan each locale folder (or glob `content/site/{en,fr,es,pt}/`**) and emit **either**:
-  - one module per locale (e.g. `sitePages.en.ts`, `sitePages.fr.ts`, …), **or**
-  - a single `sitePages.ts` exporting a map `Record<Locale, SitePageData>` keyed by slug.
-- **Resume contact merge:** today `resume.md` merges `contact.md` via `<!-- resume-contact -->`. Replicate **per locale** (each locale has its own `contact.md` and `resume.md`).
+- **English:** read from `content/site/` (existing skip rules and `resume`/`contact` merge behavior stay here; `contact.md` path remains `content/site/contact.md`).
+- **fr / es / pt:** read from `content/locale/<lang>/` for each supported locale.
+- Emit **either** one module per locale or a single `Record<Locale, SitePageData>` keyed by slug.
+- **Resume contact merge:** today EN `resume.md` merges `content/site/contact.md` via `<!-- resume-contact -->`. For each non-EN locale, merge **`content/locale/<lang>/contact.md`** into that locale’s `resume.md` the same way.
 
 **Runtime:** pages (`[HomePage.tsx](apps/web/src/pages/HomePage.tsx)`, etc.) read `useParams().lang` and call `getSitePage(lang, 'home')` (or equivalent) instead of a single global `getSitePage('home')`.
 
@@ -85,16 +87,16 @@ isProject: false
 
 ## 4. Automated translation PRs (post–content-ready)
 
-**Goal:** When **English** source Markdown changes, **three separate PRs** (one per target language) each containing updated `content/site/{fr|es|pt}/...` files, for human review.
+**Goal:** When **English** source Markdown under **`content/site/`** changes, **three separate PRs** (one per target language) each updating **`content/locale/fr/`**, **`es/`**, or **`pt/`** as appropriate, for human review.
 
-**Trigger:** GitHub Actions `on.push` to `main` (or `pull_request` only if you prefer not to translate on every direct push) with `**paths` filtered to `content/site/en/`**** (or your chosen EN path).
+**Trigger:** GitHub Actions `on.push` to `main` (or `pull_request` only if you prefer not to translate on every direct push) with **`paths`** filtered to **`content/site/**`** (EN only).
 
 **Job per target language (matrix: `fr`, `es`, `pt`):**
 
 1. Checkout branch, optionally **create a branch** `i18n/auto-<lang>-<short-sha>` from `main`.
 2. **Diff or identify** which EN files changed (git diff against previous commit or merge-base).
 3. For each changed file, run the **LLM translation contract** below (one API call per file per language, unless you later batch small files).
-4. Write outputs to the matching paths under `content/site/<lang>/`.
+4. Write outputs to **`content/locale/<lang>/`** (same filename as `content/site/<file>.md`).
 5. **Open one PR per language** (e.g. `gh pr create` or GitHub REST API): title like `[i18n] Sync fr from EN <sha>`, body listing files touched, link to EN commit.
 
 **Secrets:** The API key **never** appears in the repository: not in Markdown, not in workflow YAML as a literal, not in committed `.env`. Store **`ANTHROPIC_API_KEY`** only as a **GitHub Actions repository secret** (or **environment** secret with optional protection rules). The workflow reads it as `secrets.ANTHROPIC_API_KEY` and passes it into the step environment. Local dev uses a **gitignored** `.env` or shell env—never commit those files. `GITHUB_TOKEN` is provided by Actions for PR creation (not your Anthropic key).
@@ -115,9 +117,9 @@ This is the piece to resolve before implementation: **what exactly** each API ca
 | Input                             | Purpose                                                                                                                                                                                                                                    |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `target_locale`                   | BCP 47 tag (e.g. `fr`, `es`, `pt-BR`) and short natural-language name for the prompt.                                                                                                                                                      |
-| `source_path`                     | Repo-relative path e.g. `content/site/en/resume.md` (helps the model know file role).                                                                                                                                                      |
+| `source_path`                     | Repo-relative path e.g. `content/site/resume.md` (EN only under `content/site/`).                                                                                                                                                        |
 | `source_text`                     | Full **current** English file as UTF-8 (the single source of truth for this run).                                                                                                                                                          |
-| `previous_translation` (optional) | If `content/site/<lang>/same-file.md` exists, pass its **previous** contents so the model can preserve unchanged paragraphs and only translate deltas—or re-translate fully from EN; **pick one strategy** (minimal-diff vs full replace). |
+| `previous_translation` (optional) | If `content/locale/<lang>/<same-file>.md` exists, pass its **previous** contents so the model can preserve unchanged paragraphs and only translate deltas—or re-translate fully from EN; **pick one strategy** (minimal-diff vs full replace). |
 | `glossary` (optional)             | Small fixed terms (e.g. product names, “MuleSoft”, your name) that must stay untranslated or follow a fixed spelling.                                                                                                                      |
 
 
@@ -165,11 +167,13 @@ Before the translation workflow can call the API from GitHub Actions, **subscrib
 
 ## 5. Implementation order (suggested)
 
-1. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (FR / ES / PT).
-2. **Locale-aware UI strings** — nav, footer, document title pattern.
-3. **Content pipeline** — folder layout + generator + `getSitePage(lang, …)`; migrate EN files; add FR/ES/PT stubs (can duplicate EN initially for smoke test).
-4. **SEO** — `html lang` + `hreflang` (Helmet or lightweight `useEffect`).
-5. **Automation** — workflow + LLM script + PR template for reviewers.
+1. **Feature branch** — e.g. `feature/v2-i18n` (or your naming); do v2 work there until ready to merge.
+2. **Locale directories** — `content/locale/fr`, `es`, `pt` with mirrored filenames (stubs OK) so layout exists before wiring.
+3. **Content pipeline** — extend `generate-site-content.mjs` for EN + `content/locale/<lang>`; `getSitePage(lang, …)`; EN stays in `content/site/` (no migration of EN unless you choose otherwise).
+4. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (FR / ES / PT).
+5. **Locale-aware UI strings** — nav, footer, document title pattern.
+6. **SEO** — `html lang` + `hreflang` (Helmet or lightweight `useEffect`).
+7. **Automation** — workflow + Anthropic script + PR template; `paths: content/site/**`; writes to `content/locale/<lang>/`.
 
 ---
 
