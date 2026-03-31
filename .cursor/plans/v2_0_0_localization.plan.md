@@ -33,8 +33,6 @@ isProject: false
 - Routes live in `[apps/web/src/App.tsx](apps/web/src/App.tsx)` as nested routes under a single `[Layout](apps/web/src/components/Layout.tsx)`; there is no locale segment today.
 - Page copy is built from `[content/site/*.md](content/site/)` via `[scripts/generate-site-content.mjs](scripts/generate-site-content.mjs)` into a single `[apps/web/src/generated/sitePages.ts](apps/web/src/generated/sitePages.ts)` consumed at build time.
 - `[index.html](apps/web/index.html)` is fixed `lang="en"`.
-- **Git workflow:** `main` is **branch-protected**; every change must go through a **feature branch** and **pull request** into `main` (no direct pushes to `main`). v2 work follows the same rule; merging the PR is what updates `main` and, with the existing deploy workflow, triggers deploy.
-- **v2.0.0 line:** Implement on **`release/v2.0.0`** — a **local branch** created from **`origin/release/v2.0.0`** (use `git switch -c release/v2.0.0 origin/release/v2.0.0` if you only have a detached checkout). Commit v2 changes there, then **PR `release/v2.0.0` → `main`** when ready to ship (or open smaller PRs from topic branches into `release/v2.0.0` first, depending on your team flow).
 
 ---
 
@@ -42,7 +40,7 @@ isProject: false
 
 **Recommended URL shape:** **locale prefix in the path** — e.g. `/en/`, `/fr/`, `/es/`, `/pt-br/`.
 
-**Decided — Portuguese:** **Brazilian Portuguese** (`pt-BR`). Use path prefix **`/pt-br/`** (route segment `pt-br`). For `html lang`, `hreflang`, and LLM `target_locale`, use **`pt-BR`** consistently.
+**Decided — Portuguese:** **Brazilian Portuguese** (`pt-BR`). Use path prefix `**/pt-br/`** (route segment `pt-br`). For `html lang`, `hreflang`, and LLM `target_locale`, use `**pt-BR`** consistently.
 
 
 | Practice                 | What to do                                                                                                                                                         |
@@ -63,7 +61,7 @@ isProject: false
 
 **Directory layout — English separate from translations (search / review ergonomics):**
 
-- **English only (source of truth):** `**content/site/`** — keep the current flat layout (`home.md`, `resume.md`, `projects.md`, `contact.md`, …). Scoped search (`rg`, IDE) under `content/site/` hits **only** English, not FR/ES/pt-BR.
+- **English only (source of truth):** `**content/site/`** — keep the current flat layout (`home.md`, `resume.md`, `projects.md`, `contact.md`, …). Scoped search (`rg`, IDE) under `content/site/` hits **only** English, not FR/ES/PT.
 - **Translated Markdown:** separate root, **mirrored filenames**, e.g. `**content/locale/fr/`**, `**content/locale/es/`**, `**content/locale/pt-br/**` with the same stems as EN. This avoids mixing locales (or future `.po`/gettext-style files) alongside EN in one tree, which pollutes “find in English source” workflows.
 
 **First step on the v2 branch:** create `**content/locale/fr`**, `**es`**, `**pt-br**` (add stub `.md` files or empty placeholders as needed) before wiring the generator and routes.
@@ -71,7 +69,7 @@ isProject: false
 **Generator (`[scripts/generate-site-content.mjs](scripts/generate-site-content.mjs)`):**
 
 - **English:** read from `content/site/` (existing skip rules and `resume`/`contact` merge behavior stay here; `contact.md` path remains `content/site/contact.md`).
-- **fr / es / pt-br:** read from `content/locale/<lang>/` for each supported locale (folder name matches the URL segment, e.g. `pt-br`).
+- **fr / es / pt:** read from `content/locale/<lang>/` for each supported locale.
 - Emit **either** one module per locale or a single `Record<Locale, SitePageData>` keyed by slug.
 - **Resume contact merge:** today EN `resume.md` merges `content/site/contact.md` via `<!-- resume-contact -->`. For each non-EN locale, merge `**content/locale/<lang>/contact.md`** into that locale’s `resume.md` the same way.
 
@@ -83,7 +81,7 @@ isProject: false
 
 ## 3. Scope decisions to lock before coding
 
-- **Portuguese:** **Decided** — **`pt-BR`**; path **`/pt-br/`** + tag **`pt-BR`** for `hreflang` and automation; content under **`content/locale/pt-br/`** (see §1).
+- **Portuguese:** **Decided** — not `pt-BR`; path `**/pt/`** + tag `**pt-PT`** for `hreflang` and automation (see §1).
 - **PDFs:** Keep **English-only** PDFs in v2, or add a second phase for locale-specific PDFs (Playwright per language)? Resume pipeline is non-trivial (`[ResumePage](apps/web/src/pages/ResumePage.tsx)` + `[splitResumeMarkdown](apps/web/src/utils/splitResumeMarkdown.ts)`).
 - **Deploy:** Static hosting already serves `index.html` for unknown paths; locale-prefixed client routes **should work** once the router matches `/fr/`* the same as `/`. No CloudFront change strictly required unless you add server-only redirects for `/` → `/en/`.
 
@@ -91,11 +89,11 @@ isProject: false
 
 ## 4. Automated translation PRs (post–content-ready)
 
-**Goal:** When **English** source Markdown under `**content/site/`** changes, **three separate PRs** (one per target language) each updating `**content/locale/fr/`**, `**es/`**, or `**pt-br/`** as appropriate, for human review.
+**Goal:** When **English** source Markdown under `**content/site/`** changes, **three separate PRs** (one per target language) each updating `**content/locale/fr/`**, `**es/`**, or `**pt/**` as appropriate, for human review.
 
 **Trigger:** GitHub Actions `on.push` to `main` (or `pull_request` only if you prefer not to translate on every direct push) with `**paths`** filtered to `**content/site/`**** (EN only).
 
-**Job per target language (matrix: `fr`, `es`, `pt-br`):**
+**Job per target language (matrix: `fr`, `es`, `pt`):**
 
 1. Checkout branch, optionally **create a branch** `i18n/auto-<lang>-<short-sha>` from `main`.
 2. **Diff or identify** which EN files changed (git diff against previous commit or merge-base).
@@ -120,7 +118,7 @@ This is the piece to resolve before implementation: **what exactly** each API ca
 
 | Input                             | Purpose                                                                                                                                                                                                                                        |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `target_locale`                   | BCP 47 tag (e.g. `fr`, `es`, `pt-BR`) and short natural-language name for the prompt.                                                                                                                                                        |
+| `target_locale`                   | BCP 47 tag (e.g. `fr`, `es`, `pt-PT`) and short natural-language name for the prompt.                                                                                                                                                          |
 | `source_path`                     | Repo-relative path e.g. `content/site/resume.md` (EN only under `content/site/`).                                                                                                                                                              |
 | `source_text`                     | Full **current** English file as UTF-8 (the single source of truth for this run).                                                                                                                                                              |
 | `previous_translation` (optional) | If `content/locale/<lang>/<same-file>.md` exists, pass its **previous** contents so the model can preserve unchanged paragraphs and only translate deltas—or re-translate fully from EN; **pick one strategy** (minimal-diff vs full replace). |
@@ -171,10 +169,10 @@ Before the translation workflow can call the API from GitHub Actions, **subscrib
 
 ## 5. Implementation order (suggested)
 
-1. **Branch + PR** — Work on **`release/v2.0.0`** (local, tracking `origin/release/v2.0.0`). When the release is ready, **PR into `main`** (branch protection). Optional: short-lived topic branches merged into `release/v2.0.0` first.
-2. **Locale directories** — `content/locale/fr`, `es`, `pt-br` with mirrored filenames (stubs OK) so layout exists before wiring.
+1. **Feature branch** — e.g. `feature/v2-i18n` (or your naming); do v2 work there until ready to merge.
+2. **Locale directories** — `content/locale/fr`, `es`, `pt` with mirrored filenames (stubs OK) so layout exists before wiring.
 3. **Content pipeline** — extend `generate-site-content.mjs` for EN + `content/locale/<lang>`; `getSitePage(lang, …)`; EN stays in `content/site/` (no migration of EN unless you choose otherwise).
-4. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (EN / FR / ES / PT-BR).
+4. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (FR / ES / PT).
 5. **Locale-aware UI strings** — nav, footer, document title pattern.
 6. **SEO** — `html lang` + `hreflang` (Helmet or lightweight `useEffect`).
 7. **Automation** — workflow + Anthropic script + PR template; `paths: content/site/`**; writes to `content/locale/<lang>/`.
