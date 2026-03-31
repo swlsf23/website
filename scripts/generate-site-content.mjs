@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * Reads content/site/*.md and writes apps/web/src/generated/sitePages.ts
- * for static bundling (no runtime API). Run via npm predev/prebuild in apps/web.
+ * Reads content/site/*.md (English) and content/locale/<lang>/*.md (translations)
+ * and writes apps/web/src/generated/sitePages.ts for static bundling.
+ * Run via npm predev/prebuild in apps/web.
  *
- * For resume.md, `<!-- resume-contact -->` is replaced by the body of content/site/contact.md.
+ * For resume.md, `<!-- resume-contact -->` is replaced by that locale's contact body:
+ * - en: content/site/contact.md (or resume.contact.local.md legacy)
+ * - fr: content/locale/fr/contact.md
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -14,9 +17,17 @@ const ROOT = join(__dirname, '..');
 const SITE = join(ROOT, 'content', 'site');
 const CONTACT_MD = join(SITE, 'contact.md');
 const CONTACT_LEGACY = join(SITE, 'resume.contact.local.md');
+const LOCALE_ROOT = join(ROOT, 'content', 'locale');
 const OUT_FILE = join(ROOT, 'apps', 'web', 'src', 'generated', 'sitePages.ts');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
+
+const SKIP = new Set([
+  'writing-samples.md',
+  'resume.contact.example.md',
+  'resume.contact.local.md',
+  'contact.md',
+]);
 
 function parseMarkdownFile(text, stem) {
   if (text.startsWith('---')) {
@@ -52,70 +63,106 @@ function parseMarkdownFile(text, stem) {
   return { slug: stem, title: firstLine, body_md: text.trim() };
 }
 
-function contactBodyForResumeMerge() {
-  if (existsSync(CONTACT_MD)) {
-    const raw = readFileSync(CONTACT_MD, 'utf8');
-    return parseMarkdownFile(raw, 'contact').body_md.trim();
+/** Contact body merged into resume for `<!-- resume-contact -->` (Markdown body only). */
+function contactBodyForLocale(locale) {
+  if (locale === 'en') {
+    if (existsSync(CONTACT_MD)) {
+      const raw = readFileSync(CONTACT_MD, 'utf8');
+      return parseMarkdownFile(raw, 'contact').body_md.trim();
+    }
+    if (existsSync(CONTACT_LEGACY)) {
+      return readFileSync(CONTACT_LEGACY, 'utf8').trim();
+    }
+    return '';
   }
-  if (existsSync(CONTACT_LEGACY)) {
-    return readFileSync(CONTACT_LEGACY, 'utf8').trim();
+  const path = join(LOCALE_ROOT, locale, 'contact.md');
+  if (existsSync(path)) {
+    const raw = readFileSync(path, 'utf8');
+    return parseMarkdownFile(raw, 'contact').body_md.trim();
   }
   return '';
 }
 
-function mergeResumeContact(rawMd) {
+function mergeResumeContact(rawMd, contactBody) {
   if (!CONTACT_MARKER.test(rawMd)) {
     return rawMd;
   }
-  const contact = contactBodyForResumeMerge();
-  if (!contact) {
+  if (!contactBody) {
     return rawMd.replace(CONTACT_MARKER, '');
   }
-  return rawMd.replace(CONTACT_MARKER, contact);
+  return rawMd.replace(CONTACT_MARKER, contactBody);
 }
 
-function main() {
-  const skip = new Set([
-    'writing-samples.md',
-    'resume.contact.example.md',
-    'resume.contact.local.md',
-    'contact.md',
-  ])
-  const files = readdirSync(SITE)
-    .filter((f) => f.endsWith('.md') && !skip.has(f))
+function collectPagesForLocale(locale) {
+  const siteDir = locale === 'en' ? SITE : join(LOCALE_ROOT, locale);
+  if (!existsSync(siteDir)) {
+    return [];
+  }
+  const files = readdirSync(siteDir)
+    .filter((f) => f.endsWith('.md') && !SKIP.has(f))
     .sort();
   if (files.length === 0) {
-    console.warn(`generate-site-content: no .md files in ${SITE}`);
+    console.warn(`generate-site-content: no .md files in ${siteDir}`);
   }
 
+  const contactBody = contactBodyForLocale(locale);
   const pages = [];
   for (const f of files) {
-    const path = join(SITE, f);
-    let raw = readFileSync(path, 'utf8');
+    const filePath = join(siteDir, f);
+    let raw = readFileSync(filePath, 'utf8');
     const stem = f.replace(/\.md$/i, '');
     if (stem === 'resume') {
-      raw = mergeResumeContact(raw);
+      raw = mergeResumeContact(raw, contactBody);
     }
     pages.push(parseMarkdownFile(raw, stem));
   }
+  return pages;
+}
 
-  const json = JSON.stringify(pages, null, 0);
+function discoverLocales() {
+  const locales = ['en'];
+  const frDir = join(LOCALE_ROOT, 'fr');
+  if (existsSync(frDir)) {
+    locales.push('fr');
+  }
+  return locales;
+}
+
+function main() {
+  const locales = discoverLocales();
+  const byLocale = {};
+  for (const loc of locales) {
+    byLocale[loc] = collectPagesForLocale(loc);
+    console.log(
+      `generate-site-content: locale "${loc}" -> ${byLocale[loc].length} page(s)`,
+    );
+  }
+
+  const unionType = locales.map((l) => `'${l}'`).join(' | ');
+  const json = JSON.stringify(byLocale, null, 0);
   const ts = `export type SitePage = {
   slug: string
   title: string
   body_md: string
 }
 
-export const sitePages: SitePage[] = ${json}
+export type SiteLocale = ${unionType}
 
-export function getSitePage(slug: string): SitePage | undefined {
-  return sitePages.find((p) => p.slug === slug)
+export const SITE_LOCALES: readonly SiteLocale[] = [${locales.map((l) => `'${l}'`).join(', ')}] as const
+
+export const sitePagesByLocale: Record<SiteLocale, SitePage[]> = ${json}
+
+/** English pages only; same as \`sitePagesByLocale.en\`. */
+export const sitePages: SitePage[] = sitePagesByLocale.en
+
+export function getSitePage(lang: SiteLocale, slug: string): SitePage | undefined {
+  return sitePagesByLocale[lang]?.find((p) => p.slug === slug)
 }
 `;
 
   mkdirSync(dirname(OUT_FILE), { recursive: true });
   writeFileSync(OUT_FILE, ts, 'utf8');
-  console.log(`generate-site-content: wrote ${pages.length} page(s) -> ${OUT_FILE}`);
+  console.log(`generate-site-content: wrote -> ${OUT_FILE}`);
 }
 
 main();
