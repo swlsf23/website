@@ -18,6 +18,9 @@ __pycache__/
 .env.*
 !.env.example
 
+# Local scratch (never commit)
+content/scratch/
+
 # Legacy — use content/site/contact.md instead
 content/site/resume.contact.local.md
 content/resume.contact.local.md
