@@ -101,6 +101,14 @@ function stripYamlFrontmatter(text) {
   return text.trim();
 }
 
+/** Same as web TOC: strip `{#section-id}` from `##` lines so marked/PDF output stays clean. */
+function stripExplicitSectionIds(md) {
+  return md.replace(
+    /^(\s*##\s+.+?)\s*\{#[-a-zA-Z][-a-zA-Z0-9]*\}\s*$/gm,
+    '$1',
+  );
+}
+
 function contactMarkdown() {
   const phone = process.env.RESUME_PHONE?.trim();
   const email = process.env.RESUME_EMAIL?.trim();
@@ -124,11 +132,12 @@ function contactMarkdown() {
  * can add margin below the block (see resume-print.css).
  */
 function buildBodyHtml(mdRaw) {
-  if (!CONTACT_MARKER.test(mdRaw)) {
-    return insertHrBeforeMajorSections(marked.parse(mdRaw));
+  const cleaned = stripExplicitSectionIds(mdRaw);
+  if (!CONTACT_MARKER.test(cleaned)) {
+    return insertHrBeforeMajorSections(marked.parse(cleaned));
   }
   const fragment = contactMarkdown();
-  const parts = mdRaw.split(CONTACT_MARKER);
+  const parts = cleaned.split(CONTACT_MARKER);
   const before = parts[0] ?? '';
   const after = parts.slice(1).join('');
   const contactHtml = fragment

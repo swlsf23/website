@@ -1,0 +1,16 @@
+{
+  "contact.title": "Contact",
+  "contact.beforeLink": "The best way to contact me is on ",
+  "contact.afterLink": ".",
+  "contact.linkedinLabel": "LinkedIn",
+  "site.brand": "Steven Leslie",
+  "nav.primary": "Primary",
+  "nav.about": "About me",
+  "nav.resume": "Resume",
+  "nav.projects": "Projects",
+  "nav.contact": "Contact",
+  "nav.social.github": "GitHub",
+  "nav.social.linkedin": "LinkedIn",
+  "lang.switcher": "Language",
+  "footer.copyright": "© {year} Steven Leslie"
+}

@@ -1,5 +1,6 @@
 import { marked } from 'marked'
-import { getSitePage } from '../generated/sitePages.ts'
+import { useSiteLocale } from '../hooks/useSiteLocale.ts'
+import { requireSitePage } from '../utils/requireSitePage.ts'
 
 /** Split markdown into intro text and ## sections (one card per section). */
 function splitProjectsBody(body: string): { lede: string; sections: string[] } {
@@ -19,8 +20,9 @@ function splitProjectsBody(body: string): { lede: string; sections: string[] } {
 }
 
 export function ProjectsPage() {
-  const page = getSitePage('en', 'projects')
-  const { lede, sections } = page ? splitProjectsBody(page.body_md) : { lede: '', sections: [] }
+  const lang = useSiteLocale()
+  const page = requireSitePage(lang, 'projects')
+  const { lede, sections } = splitProjectsBody(page.body_md)
 
   const ledeHtml = lede ? (marked.parse(lede, { async: false }) as string) : ''
   const sectionHtml = sections.map(
@@ -29,34 +31,25 @@ export function ProjectsPage() {
 
   return (
     <section className="projects-page" aria-labelledby="projects-heading">
-      {page ? (
-        <>
-          <header className="page-header">
-            <h1 id="projects-heading">{page.title}</h1>
-          </header>
-          <div className="projects-body--md">
-            {ledeHtml ? (
-              <div
-                className="projects-lede"
-                dangerouslySetInnerHTML={{ __html: ledeHtml }}
-              />
-            ) : null}
-            {sectionHtml.map((html, i) => (
-              <article key={i} className="project-card">
-                <div
-                  className="project-card-body"
-                  dangerouslySetInnerHTML={{ __html: html }}
-                />
-              </article>
-            ))}
-          </div>
-        </>
-      ) : (
-        <p className="api-hint" role="status">
-          No projects page in <code>content/site/projects.md</code>. Add it and run{' '}
-          <code>npm run dev</code> (content is generated at build time).
-        </p>
-      )}
+      <header className="page-header">
+        <h1 id="projects-heading">{page.title}</h1>
+      </header>
+      <div className="projects-body--md">
+        {ledeHtml ? (
+          <div
+            className="projects-lede"
+            dangerouslySetInnerHTML={{ __html: ledeHtml }}
+          />
+        ) : null}
+        {sectionHtml.map((html, i) => (
+          <article key={i} className="project-card">
+            <div
+              className="project-card-body"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </article>
+        ))}
+      </div>
     </section>
   )
 }

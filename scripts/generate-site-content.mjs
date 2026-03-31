@@ -7,6 +7,7 @@
  * For resume.md, `<!-- resume-contact -->` is replaced by that locale's contact body:
  * - en: content/site/contact.md (or resume.contact.local.md legacy)
  * - fr: content/locale/fr/contact.md
+ * `contact.md` is skipped for sitePages (no bundled contact page from Markdown).
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -128,6 +129,32 @@ function discoverLocales() {
   return locales;
 }
 
+/**
+ * Every non-English locale must expose the same page slugs as English (build fails otherwise).
+ */
+function assertLocaleContentParity(byLocale, locales) {
+  const enPages = byLocale.en;
+  if (!enPages || enPages.length === 0) {
+    console.error('generate-site-content: English has no pages; add Markdown under content/site/');
+    process.exit(1);
+  }
+  const enSlugs = enPages.map((p) => p.slug).sort().join(',');
+
+  for (const loc of locales) {
+    if (loc === 'en') continue;
+    const pages = byLocale[loc];
+    const slugs = (pages || []).map((p) => p.slug).sort().join(',');
+    if (slugs !== enSlugs) {
+      console.error(
+        `generate-site-content: locale "${loc}" must mirror English page slugs.\n` +
+          `  English: ${enSlugs}\n` +
+          `  ${loc}: ${slugs || '(none)'}`,
+      );
+      process.exit(1);
+    }
+  }
+}
+
 function main() {
   const locales = discoverLocales();
   const byLocale = {};
@@ -137,6 +164,8 @@ function main() {
       `generate-site-content: locale "${loc}" -> ${byLocale[loc].length} page(s)`,
     );
   }
+
+  assertLocaleContentParity(byLocale, locales);
 
   const unionType = locales.map((l) => `'${l}'`).join(' | ');
   const json = JSON.stringify(byLocale, null, 0);

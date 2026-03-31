@@ -9,7 +9,7 @@ title: Resume
 
 Product & developer content · Doc tooling & infrastructure · AI-assisted workflows · User-focused, feedback-driven
 
-## Professional summary
+## Professional summary {#section-professional-summary}
 
 I'm a technical writer with extensive experience managing and creating documentation for enterprise SaaS and PaaS, data platforms, APIs, connectors, and data pipelines, including admin and developer workflows.
 
@@ -17,7 +17,7 @@ I've implemented and managed a documentation site and build infrastructure using
 
 I integrate Cursor and LLMs in my writing and review workflows to create and maintain documentation and code examples. I use these tools to assist me in preserving technical accuracy and consistency of content, while guarding against hallucination risk.
 
-## Experience
+## Experience {#section-experience}
 
 ### Staff technical writer — Snowflake
 
@@ -97,7 +97,7 @@ San Francisco Bay Area · On-site
 
 - Wrote installation, administration, and configuration guides for Plumtree’s collaboration management and usage tracking applications.
 
-## Education
+## Education {#section-education}
 
 ### Bachelor of Science, Data Science — Arizona State University
 

@@ -6,15 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:site": "npm run generate:content && npm run resume:pdf:all && tsc -b && vite build",
+    "build:site": "npm run generate:content && npm run check:ui-keys && npm run resume:pdf:all && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "resume:pdf": "node ../../scripts/render_resume_pdf.mjs",
     "resume:pdf:writing": "node ../../scripts/render_resume_pdf.mjs --input ../../content/site/writing-samples.md --output ../../apps/web/public/writing-samples.pdf",
     "resume:pdf:all": "node ../../scripts/render_resume_pdf.mjs --all",
     "generate:content": "node ../../scripts/generate-site-content.mjs",
-    "predev": "npm run generate:content",
-    "prebuild": "npm run generate:content"
+    "check:ui-keys": "node ../../scripts/check-ui-locale-keys.mjs",
+    "predev": "npm run generate:content && npm run check:ui-keys",
+    "prebuild": "npm run generate:content && npm run check:ui-keys"
   },
   "dependencies": {
     "marked": "^15.0.12",

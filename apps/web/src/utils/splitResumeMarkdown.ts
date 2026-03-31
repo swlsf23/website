@@ -2,6 +2,8 @@
  * Splits resume markdown on level-2 headings (`## Section`) so each block can be
  * rendered as its own card. The preamble (everything before the first `##`) is
  * kept as a single block (typically `# Name`, tagline, etc.).
+ *
+ * Optional stable id (same across locales): `## Translated title {#section-experience}`
  */
 export type ResumeSection =
   | { kind: 'preamble'; bodyMd: string }
@@ -13,6 +15,18 @@ function slugify(title: string): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
   return s || 'section'
+}
+
+/** `## Title {#section-foo}` → title + id; otherwise id from slugify(title). */
+const EXPLICIT_SECTION_ID = /^(.*?)\s*\{#([a-zA-Z][-a-zA-Z0-9]*)\}\s*$/
+
+function sectionTitleAndId(firstLine: string): { title: string; id: string } {
+  const trimmed = firstLine.trim()
+  const m = trimmed.match(EXPLICIT_SECTION_ID)
+  if (m) {
+    return { title: m[1].trim(), id: m[2] }
+  }
+  return { title: trimmed, id: `section-${slugify(trimmed)}` }
 }
 
 export function splitResumeMarkdown(bodyMd: string): ResumeSection[] {
@@ -27,11 +41,12 @@ export function splitResumeMarkdown(bodyMd: string): ResumeSection[] {
   for (let i = 1; i < parts.length; i++) {
     const chunk = parts[i].trim()
     const nl = chunk.indexOf('\n')
-    const title = (nl === -1 ? chunk : chunk.slice(0, nl)).trim()
+    const titleLine = nl === -1 ? chunk : chunk.slice(0, nl)
     const body = nl === -1 ? '' : chunk.slice(nl + 1).trim()
+    const { title, id } = sectionTitleAndId(titleLine)
     out.push({
       kind: 'section',
-      id: `section-${slugify(title)}`,
+      id,
       title,
       bodyMd: body,
     })

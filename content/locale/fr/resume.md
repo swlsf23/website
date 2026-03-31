@@ -9,7 +9,7 @@ title: CV
 
 Contenu produit & développeur · Chaîne d’outils doc & infrastructure · Flux de travail assistés par l’IA · Centré utilisateur, guidé par la rétroaction
 
-## Profil
+## Profil {#section-professional-summary}
 
 Je suis rédacteur technique avec une solide expérience de la gestion et de la rédaction de documentation pour des offres SaaS et PaaS d’entreprise, des plateformes de données, des API, des connecteurs et des pipelines de données, y compris les parcours administrateur et développeur.
 
@@ -17,7 +17,7 @@ J’ai mis en place et géré un site de documentation et une infrastructure de 
 
 J’intègre Cursor et des modèles de langage à mes flux de rédaction et de relecture pour produire et tenir à jour la documentation et des exemples de code. Je m’en sers pour préserver la précision technique et la cohérence du contenu, tout en limitant le risque d’hallucination.
 
-## Expérience
+## Expérience {#section-experience}
 
 ### Rédacteur technique principal — Snowflake
 
@@ -97,7 +97,7 @@ Baie de San Francisco · Présentiel
 
 - Guides d’installation, d’administration et de configuration pour les applications de gestion de la collaboration et de suivi d’usage de Plumtree.
 
-## Formation
+## Formation {#section-education}
 
 ### Bachelor en sciences des données — Arizona State University
 

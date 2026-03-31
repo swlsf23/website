@@ -43,6 +43,8 @@
   --page-heading-to-card-gap: 1.25rem;
   /* Space from last line of page content to the footer rule (footer only — not section dividers) */
   --page-content-footer-gap: 2rem;
+  /* Fixed bottom-right language control (see .site-lang-dock in App.css) */
+  --site-lang-dock-h: 3.25rem;
 
   font: 17px/150% var(--sans);
   letter-spacing: 0.01em;
@@ -73,6 +75,9 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-bottom: calc(
+    var(--site-lang-dock-h) + env(safe-area-inset-bottom, 0px)
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {

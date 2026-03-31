@@ -1,6 +1,6 @@
 ---
 slug: home
-title: Accueil
+title: À propos
 ---
 
 Je viens du Nouveau-Mexique et j’ai étudié la philosophie à la New Mexico State University. Après mes études, j’ai déménagé à San Francisco, et la baie a été mon foyer pendant la majeure partie de ma vie d’adulte.

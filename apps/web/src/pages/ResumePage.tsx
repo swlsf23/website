@@ -1,15 +1,30 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 import { marked } from 'marked'
-import { getSitePage } from '../generated/sitePages.ts'
+import { useSiteLocale } from '../hooks/useSiteLocale.ts'
+import { requireSitePage } from '../utils/requireSitePage.ts'
 import {
   splitEducationBody,
   splitExperienceBody,
   splitResumeMarkdown,
 } from '../utils/splitResumeMarkdown.ts'
 
+function subscribeHash(onStoreChange: () => void) {
+  window.addEventListener('hashchange', onStoreChange)
+  return () => window.removeEventListener('hashchange', onStoreChange)
+}
+
+function hashSnapshot() {
+  return window.location.hash
+}
+
+function hashServerSnapshot() {
+  return ''
+}
+
 export function ResumePage() {
-  const resume = getSitePage('en', 'resume')
-  const sections = resume ? splitResumeMarkdown(resume.body_md) : []
+  const lang = useSiteLocale()
+  const resume = requireSitePage(lang, 'resume')
+  const sections = splitResumeMarkdown(resume.body_md)
 
   const sectionEntries = useMemo(
     () => sections.filter((s) => s.kind === 'section'),
@@ -27,17 +42,20 @@ export function ResumePage() {
 
   const firstSectionId = sectionEntries[0]?.id ?? ''
 
-  const [activeSectionId, setActiveSectionId] = useState(firstSectionId)
+  const hash = useSyncExternalStore(
+    subscribeHash,
+    hashSnapshot,
+    hashServerSnapshot,
+  )
 
-  useEffect(() => {
-    const hash = window.location.hash.slice(1)
+  const activeSectionId = useMemo(() => {
+    const idFromHash = hash.slice(1)
     const ids = new Set(sectionEntries.map((s) => s.id))
-    if (hash && ids.has(hash)) {
-      setActiveSectionId(hash)
-    } else {
-      setActiveSectionId(firstSectionId)
+    if (idFromHash && ids.has(idFromHash)) {
+      return idFromHash
     }
-  }, [sectionEntries, firstSectionId])
+    return firstSectionId
+  }, [hash, sectionEntries, firstSectionId])
 
   const activeSection = sectionEntries.find((s) => s.id === activeSectionId)
 
@@ -57,8 +75,7 @@ export function ResumePage() {
 
   return (
     <article className="resume-page">
-      {resume ? (
-        <div className="resume-page-layout">
+      <div className="resume-page-layout">
           <div className="resume-page-main">
             <div className="resume-page-single">
               {activeSection
@@ -227,24 +244,27 @@ export function ResumePage() {
                     }
 
                     return (
-                      <article
+                      <div
                         key={activeSection.id}
                         id={activeSection.id}
-                        className="resume-card resume-card--section project-card resume-anchor"
+                        className="resume-summary-plain resume-anchor"
                         aria-labelledby={titleId}
                       >
-                        <div className="project-card-body">
-                          <header className="resume-card-header">
-                            <h2 id={titleId} className="resume-card-heading">
-                              {activeSection.title}
-                            </h2>
-                          </header>
-                          <div
-                            className="resume-card-body resume-body--md"
-                            dangerouslySetInnerHTML={{ __html: html }}
-                          />
-                        </div>
-                      </article>
+                        <h2
+                          id={titleId}
+                          className="resume-card-heading resume-summary-heading"
+                        >
+                          {activeSection.title}
+                        </h2>
+                        <article className="resume-card resume-card--section project-card">
+                          <div className="project-card-body">
+                            <div
+                              className="resume-card-body resume-body--md"
+                              dangerouslySetInnerHTML={{ __html: html }}
+                            />
+                          </div>
+                        </article>
+                      </div>
                     )
                   })()
                 : null}
@@ -268,8 +288,7 @@ export function ResumePage() {
                       }
                       onClick={(e) => {
                         e.preventDefault()
-                        setActiveSectionId(item.id)
-                        window.history.replaceState(null, '', `#${item.id}`)
+                        window.location.hash = `#${item.id}`
                       }}
                     >
                       {item.label}
@@ -290,12 +309,6 @@ export function ResumePage() {
             </div>
           </div>
         </div>
-      ) : (
-        <p className="api-hint" role="status">
-          No resume in <code>content/site/resume.md</code>. Add it and run{' '}
-          <code>npm run dev</code> (content is generated at build time).
-        </p>
-      )}
     </article>
   )
 }

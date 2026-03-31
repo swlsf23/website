@@ -1,6 +1,6 @@
 ---
 slug: home
-title: Home
+title: About me
 ---
 
 I’m originally from New Mexico and studied philosophy at New Mexico State University. After graduation I moved to San Francisco, and the Bay Area has been home for most of my adult life.
