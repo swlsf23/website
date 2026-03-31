@@ -19,7 +19,7 @@ function splitProjectsBody(body: string): { lede: string; sections: string[] } {
 }
 
 export function ProjectsPage() {
-  const page = getSitePage('projects')
+  const page = getSitePage('en', 'projects')
   const { lede, sections } = page ? splitProjectsBody(page.body_md) : { lede: '', sections: [] }
 
   const ledeHtml = lede ? (marked.parse(lede, { async: false }) as string) : ''

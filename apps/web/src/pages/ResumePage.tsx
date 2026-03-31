@@ -8,7 +8,7 @@ import {
 } from '../utils/splitResumeMarkdown.ts'
 
 export function ResumePage() {
-  const resume = getSitePage('resume')
+  const resume = getSitePage('en', 'resume')
   const sections = resume ? splitResumeMarkdown(resume.body_md) : []
 
   const sectionEntries = useMemo(

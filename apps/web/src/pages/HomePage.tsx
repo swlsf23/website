@@ -2,7 +2,7 @@ import { marked } from 'marked'
 import { getSitePage } from '../generated/sitePages.ts'
 
 export function HomePage() {
-  const home = getSitePage('home')
+  const home = getSitePage('en', 'home')
   const html = home
     ? (marked.parse(home.body_md, { async: false }) as string)
     : ''
