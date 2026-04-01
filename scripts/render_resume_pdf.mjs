@@ -11,7 +11,9 @@
  *
  * Build writing samples PDF (same styling):
  *   npm run resume:pdf:writing
- * Both in one run (one browser):
+ * French resume (same pipeline; `<!-- resume-contact -->` uses content/locale/fr/contact.md):
+ *   (included in `resume:pdf:all`)
+ * All default PDFs in one run (one browser): EN resume, FR resume, writing samples
  *   npm run resume:pdf:all
  */
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -25,18 +27,29 @@ const require = createRequire(join(ROOT, 'apps/web/package.json'));
 const { chromium } = require('playwright');
 const { marked } = require('marked');
 
+/** @typedef {{ src: string, out: string, lang?: string }} PdfJob */
+
+/** @type {PdfJob[]} */
 const DEFAULT_JOBS = [
   {
     src: join(ROOT, 'content/site/resume.md'),
     out: join(ROOT, 'apps/web/public/resume.pdf'),
+    lang: 'en',
+  },
+  {
+    src: join(ROOT, 'content/locale/fr/resume.md'),
+    out: join(ROOT, 'apps/web/public/resume-fr.pdf'),
+    lang: 'fr',
   },
   {
     src: join(ROOT, 'content/site/writing-samples.md'),
     out: join(ROOT, 'apps/web/public/writing-samples.pdf'),
+    lang: 'en',
   },
 ];
 
 const CONTACT = join(ROOT, 'content/site/contact.md');
+const CONTACT_FR = join(ROOT, 'content/locale/fr/contact.md');
 const CONTACT_LEGACY = join(ROOT, 'content/site/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
 
@@ -87,7 +100,7 @@ function parseJobs(argv) {
       output = resolveUserPath(args[++i]);
     }
   }
-  return [{ src: input, out: output }];
+  return [{ src: input, out: output, lang: 'en' }];
 }
 
 function stripYamlFrontmatter(text) {
@@ -109,7 +122,7 @@ function stripExplicitSectionIds(md) {
   );
 }
 
-function contactMarkdown() {
+function contactMarkdownFromEnvOrEnFiles() {
   const phone = process.env.RESUME_PHONE?.trim();
   const email = process.env.RESUME_EMAIL?.trim();
   if (phone || email) {
@@ -127,16 +140,24 @@ function contactMarkdown() {
   return '';
 }
 
+/** Contact body for `<!-- resume-contact -->`: FR PDF uses locale file when present. */
+function contactMarkdownForLocale(lang) {
+  if (lang === 'fr' && existsSync(CONTACT_FR)) {
+    return stripYamlFrontmatter(readFileSync(CONTACT_FR, 'utf8'));
+  }
+  return contactMarkdownFromEnvOrEnFiles();
+}
+
 /**
  * Build body HTML: optional contact is wrapped in `.resume-contact` so print CSS
  * can add margin below the block (see resume-print.css).
  */
-function buildBodyHtml(mdRaw) {
+function buildBodyHtml(mdRaw, lang = 'en') {
   const cleaned = stripExplicitSectionIds(mdRaw);
   if (!CONTACT_MARKER.test(cleaned)) {
     return insertHrBeforeMajorSections(marked.parse(cleaned));
   }
-  const fragment = contactMarkdown();
+  const fragment = contactMarkdownForLocale(lang);
   const parts = cleaned.split(CONTACT_MARKER);
   const before = parts[0] ?? '';
   const after = parts.slice(1).join('');
@@ -155,13 +176,14 @@ function insertHrBeforeMajorSections(html) {
   return html.replace(/<h2\b/gi, (match) => `<hr>${match}`);
 }
 
-async function renderPdf(browser, { src, out }) {
+async function renderPdf(browser, { src, out, lang = 'en' }) {
   const raw = readFileSync(src, 'utf8');
   const mdRaw = stripYamlFrontmatter(raw);
   marked.setOptions({ gfm: true, breaks: false });
-  const bodyHtml = buildBodyHtml(mdRaw);
+  const bodyHtml = buildBodyHtml(mdRaw, lang);
   const cssText = `${interFontFaceCssForPdf()}\n${readFileSync(CSS, 'utf8')}`;
-  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
+  const htmlLang = lang === 'fr' ? 'fr' : 'en';
+  const html = `<!DOCTYPE html><html lang="${htmlLang}"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
 
   const page = await browser.newPage();
   await page.emulateMedia({ media: 'print' });

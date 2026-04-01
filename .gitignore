@@ -27,6 +27,7 @@ content/resume.contact.local.md
 
 # Generated PDFs (contact baked in; build before deploy — see scripts/render_resume_pdf.mjs)
 apps/web/public/resume.pdf
+apps/web/public/resume-fr.pdf
 apps/web/public/writing-samples.pdf
 
 # Local cache (optional; not part of repo)

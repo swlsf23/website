@@ -300,7 +300,7 @@ export function ResumePage() {
             <div className="resume-downloads" aria-label="Resume downloads">
               <a
                 className="btn btn-primary"
-                href="/resume.pdf"
+                href={lang === 'fr' ? '/resume-fr.pdf' : '/resume.pdf'}
                 target="_blank"
                 rel="noopener noreferrer"
               >

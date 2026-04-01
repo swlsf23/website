@@ -29,3 +29,9 @@ The application uses routes for each of the content pages:
 - Contact: currently a link to LinkedIn.
 
 The Markdown sources for the public pages are under **`content/site/`**.
+
+## Version history
+
+- **2.0.0** — Locale-prefixed routes for English and French (`/en/…`, `/fr/…`), with French Markdown under `content/locale/fr/`, per-locale UI strings, stable resume section anchors, and a French resume PDF (`resume-fr.pdf`) produced alongside the English PDF in the Playwright pipeline. Dynamic SEO (`document` language, `hreflang`, canonical URLs) is planned for **v2.1.0** (see `.cursor/plans/v2_0_0_localization.plan.md`).
+
+- **1.0.0** — Initial tagged release: single-locale (English) portfolio, Markdown → generated `sitePages`, Terraform on AWS (S3 + CloudFront), GitHub Actions deploy, and Playwright-built resume and writing-samples PDFs.

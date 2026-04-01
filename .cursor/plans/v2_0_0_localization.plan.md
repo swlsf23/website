@@ -1,6 +1,6 @@
 ---
 name: v2 i18n localization
-overview: Add locale-prefixed routes (en, fr, es, pt-br), parallel Markdown content per locale with industry-standard URLs and SEO hints, then layer GitHub Actions + Anthropic (Claude) API-driven translation PRs (one PR per target language) for human review before deploy.
+overview: v2.0.0 ships locale-prefixed routes, parallel Markdown per locale, and UI chrome strings. v2.1.0 adds SEO (dynamic document lang, hreflang, canonical / site origin). Later, GitHub Actions + Anthropic translation PRs (one PR per target language) for human review before deploy.
 todos:
   - id: decide-url-locale
     content: "Portuguese: pt-BR — path /pt-br/; BCP 47 pt-BR for html/hreflang and automation; content/locale/pt-br/"
@@ -11,8 +11,11 @@ todos:
   - id: content-folders-generator
     content: EN in content/site/; translations in content/locale/{fr,es,pt-br}; extend generate-site-content + pages
     status: pending
-  - id: ui-strings-seo
-    content: Per-locale chrome strings; html lang + hreflang
+  - id: ui-strings
+    content: Per-locale chrome strings (nav, footer, etc.)
+    status: pending
+  - id: seo-v210
+    content: "v2.1.0: documentElement.lang, hreflang alternates, optional title pattern, VITE_SITE_ORIGIN / canonical"
     status: pending
   - id: automation-prs
     content: "GHA on EN path changes: LLM translate per lang matrix; one PR per language"
@@ -27,6 +30,8 @@ isProject: false
 ---
 
 # v2.0.0 — Localization plan
+
+**SEO scope:** Dynamic per-route `html lang`, `hreflang` alternates, and canonical / Open Graph–style wiring are **deferred to [v2.1.0 SEO](#v210-seo)**. v2.0.0 may keep the static `[index.html](apps/web/index.html)` shell as today.
 
 ## Current baseline (relevant to design)
 
@@ -48,8 +53,8 @@ isProject: false
 | Stable URLs per language | Every public page lives under `/:lang/...` (same path segments after the locale).                                                                                  |
 | Default entry            | Redirect `/` → `/en/` (or detect `Accept-Language` with a safe fallback to `en`).                                                                                  |
 | BCP 47 tags              | Use `en`, `fr`, `es`, `pt-BR` for the `/pt-br/` locale (router allowlist includes `pt-br`).                                                                        |
-| `html lang`              | Set per-route (e.g. React Helmet or a small effect updating `document.documentElement.lang`).                                                                      |
-| `hreflang`               | Emit `<link rel="alternate" hreflang="..." href="...">` for the same page across locales (helps search engines; optional for a personal portfolio but “standard”). |
+| `html lang`              | Set per-route (e.g. small effect on `document.documentElement.lang`). **Planned for v2.1.0** together with `hreflang` (see [§v2.1.0](#v210-seo)).                  |
+| `hreflang`               | Emit `<link rel="alternate" hreflang="..." href="...">` for the same page across locales. **v2.1.0** (see [§v2.1.0](#v210-seo)).                                  |
 | Language switcher        | In `Layout`, links to **same path** in another locale (e.g. from `/fr/resume` → `/es/resume`), not only to home.                                                   |
 
 
@@ -167,15 +172,27 @@ Before the translation workflow can call the API from GitHub Actions, **subscrib
 
 ---
 
+## v2.1.0 SEO
+
+Ship after v2.0.0 localization is stable. Intended work:
+
+- **`document.documentElement.lang`** (or equivalent) aligned with the active locale route (`en`, `fr`, `es`, `pt-br` → BCP 47 tags as in §1).
+- **`hreflang`** `<link rel="alternate">` for the current path across all published locales; absolute URLs from **`VITE_SITE_ORIGIN`** (or env-driven canonical base).
+- **Optional:** per-page `<title>` / meta description pattern; lightweight head helper (e.g. small component + `useEffect`, or `react-helmet-async` if you prefer).
+- **Not in v2.0.0:** no requirement to land this before tagging v2.0.0.
+
+---
+
 ## 5. Implementation order (suggested)
 
 1. **Feature branch** — e.g. `feature/v2-i18n` (or your naming); do v2 work there until ready to merge.
 2. **Locale directories** — `content/locale/fr`, `es`, `pt` with mirrored filenames (stubs OK) so layout exists before wiring.
 3. **Content pipeline** — extend `generate-site-content.mjs` for EN + `content/locale/<lang>`; `getSitePage(lang, …)`; EN stays in `content/site/` (no migration of EN unless you choose otherwise).
 4. **Routing + allowlist** — `/:lang` routes, redirect `/` → `/en/`, `NavLink`/`Link` with locale prefix; language switcher (FR / ES / PT).
-5. **Locale-aware UI strings** — nav, footer, document title pattern.
-6. **SEO** — `html lang` + `hreflang` (Helmet or lightweight `useEffect`).
-7. **Automation** — workflow + Anthropic script + PR template; `paths: content/site/`**; writes to `content/locale/<lang>/`.
+5. **Locale-aware UI strings** — nav, footer; optional document title pattern can wait for **v2.1.0** if you want titles + SEO in one pass.
+6. **Automation** — workflow + Anthropic script + PR template; `paths: content/site/`**; writes to `content/locale/<lang>/`.
+
+**v2.1.0 (after v2.0.0):** SEO — `html lang`, `hreflang`, canonical base, optional meta (see [§v2.1.0](#v210-seo)).
 
 ---
 
