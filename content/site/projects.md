@@ -3,18 +3,27 @@ slug: projects
 title: Projects
 ---
 
-These are projects I've built or maintain, with links to live sites and source code.
+These are projects I built and maintain, with links to live sites and source code.
 
 ## Personal website
 
-This website is a client-side React app (Vite, TypeScript) with Markdown-authored content generated at build time. 
+Client-side React app with Markdown-authored content generated at build time. This project demonstrates my ability to use the following technologies:
 
-AWS resources are managed with Terraform. GitHub Actions build and deploys on push to `main`. Site hosted on S3 and CloudFront. 
+| Layer | Details |
+| --- | --- |
+| Infrastructure | Infrastructure is defined and deployed with [Terraform](https://www.terraform.io/). The static site is served from [Amazon S3](https://aws.amazon.com/s3/) behind [Amazon CloudFront](https://aws.amazon.com/cloudfront/). |
+| CI/CD | [GitHub Actions](https://github.com/features/actions) build and deploy the site on every push to `main`. |
+| Webapp | The UI is a single-page [React](https://react.dev/) app built with [Vite](https://vitejs.dev/) and [TypeScript](https://www.typescriptlang.org/). |
+| PDF generation | Resume and writing samples are rendered to PDF with [marked](https://marked.js.org/) (Markdown to HTML), [Playwright](https://playwright.dev/) (browser automation), and headless [Chromium](https://www.chromium.org/). |
 
-The resume and writing samples use the same Markdown for the site and for PDF export: marked for HTML, Playwright with Chromium for PDF, CSS for layout.
+For details on how I implemented these technologies, see the GitHub repo.
 
 [View site](/) [GitHub](https://github.com/swlsf23/website)
 
 ## More to come
 
-Additional projects will be listed here as they are published.
+I have additional portfolio projects in the pipeline, including:
+
+- A doc site infrastructure that implements AI in the doc production workflow.
+- Data visualization projects.
+- Language learning tools that leverage LLMs.
