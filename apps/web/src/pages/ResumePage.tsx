@@ -1,6 +1,7 @@
 import { useMemo, useSyncExternalStore } from 'react'
 import { marked } from 'marked'
 import { useSiteLocale } from '../hooks/useSiteLocale.ts'
+import { useUiStrings } from '../hooks/useUiStrings.ts'
 import { requireSitePage } from '../utils/requireSitePage.ts'
 import {
   splitEducationBody,
@@ -23,6 +24,7 @@ function hashServerSnapshot() {
 
 export function ResumePage() {
   const lang = useSiteLocale()
+  const t = useUiStrings()
   const resume = requireSitePage(lang, 'resume')
   const sections = splitResumeMarkdown(resume.body_md)
 
@@ -304,7 +306,15 @@ export function ResumePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                PDF
+                {t['resume.downloadResumePdf']}
+              </a>
+              <a
+                className="btn btn-primary"
+                href="/writing-samples.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t['resume.downloadWritingSamples']}
               </a>
             </div>
           </div>

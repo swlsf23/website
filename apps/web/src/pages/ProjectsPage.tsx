@@ -2,6 +2,8 @@ import { marked } from 'marked'
 import { useSiteLocale } from '../hooks/useSiteLocale.ts'
 import { requireSitePage } from '../utils/requireSitePage.ts'
 
+marked.use({ gfm: true })
+
 /** Split markdown into intro text and ## sections (one card per section). */
 function splitProjectsBody(body: string): { lede: string; sections: string[] } {
   const raw = body.trim()

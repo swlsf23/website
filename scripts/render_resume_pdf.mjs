@@ -104,12 +104,14 @@ function parseJobs(argv) {
 }
 
 function stripYamlFrontmatter(text) {
-  if (!text.startsWith('---')) {
+  const lines = text.split(/\r?\n/);
+  if (lines[0]?.trim() !== '---') {
     return text.trim();
   }
-  const parts = text.split('---', 3);
-  if (parts.length >= 3) {
-    return parts[2].trim();
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i] === '---') {
+      return lines.slice(i + 1).join('\n').trim();
+    }
   }
   return text.trim();
 }

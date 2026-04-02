@@ -23,6 +23,25 @@ const OUT_FILE = join(ROOT, 'apps', 'web', 'src', 'generated', 'sitePages.ts');
 
 const CONTACT_MARKER = /<!--\s*resume-contact\s*-->/i;
 
+/**
+ * YAML frontmatter between a leading `---` line and the next line that is exactly `---`.
+ * Do not use `String#split('---')`: Markdown tables use `| --- |` which would corrupt the body.
+ */
+function splitYamlFrontmatter(text) {
+  const lines = text.split(/\r?\n/);
+  if (lines[0]?.trim() !== '---') {
+    return null;
+  }
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i] === '---') {
+      const fm = lines.slice(1, i).join('\n');
+      const body = lines.slice(i + 1).join('\n');
+      return { fm, body };
+    }
+  }
+  return null;
+}
+
 const SKIP = new Set([
   'writing-samples.md',
   'resume.contact.example.md',
@@ -31,29 +50,27 @@ const SKIP = new Set([
 ]);
 
 function parseMarkdownFile(text, stem) {
-  if (text.startsWith('---')) {
-    const parts = text.split('---', 3);
-    if (parts.length >= 3) {
-      const fm = parts[1].trim();
-      const body = parts[2].trim();
-      const meta = {};
-      for (const line of fm.split('\n')) {
-        const m = line.match(/^(\w+):\s*(.+)$/);
-        if (m) {
-          let v = m[2].trim();
-          if (
-            (v.startsWith('"') && v.endsWith('"')) ||
-            (v.startsWith("'") && v.endsWith("'"))
-          ) {
-            v = v.slice(1, -1);
-          }
-          meta[m[1]] = v;
+  const split = splitYamlFrontmatter(text);
+  if (split) {
+    const fm = split.fm.trim();
+    const body = split.body.trim();
+    const meta = {};
+    for (const line of fm.split('\n')) {
+      const m = line.match(/^(\w+):\s*(.+)$/);
+      if (m) {
+        let v = m[2].trim();
+        if (
+          (v.startsWith('"') && v.endsWith('"')) ||
+          (v.startsWith("'") && v.endsWith("'"))
+        ) {
+          v = v.slice(1, -1);
         }
+        meta[m[1]] = v;
       }
-      const slug = String(meta.slug || stem);
-      const title = String(meta.title || slug);
-      return { slug, title, body_md: body };
     }
+    const slug = String(meta.slug || stem);
+    const title = String(meta.title || slug);
+    return { slug, title, body_md: body };
   }
   const firstLine =
     text
