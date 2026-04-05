@@ -302,11 +302,11 @@ export function ResumePage() {
             <div className="resume-downloads" aria-label="Resume downloads">
               <a
                 className="btn btn-primary"
-                href={lang === 'fr' ? '/resume-fr.pdf' : '/resume.pdf'}
+                href="/resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t['resume.downloadResumePdf']}
+                {t['resume.pdfLabel']}
               </a>
               <a
                 className="btn btn-primary"
@@ -314,7 +314,7 @@ export function ResumePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t['resume.downloadWritingSamples']}
+                {t['resume.writingSamplesLabel']}
               </a>
             </div>
           </div>

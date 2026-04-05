@@ -13,6 +13,6 @@
   "nav.social.linkedin": "LinkedIn",
   "lang.switcher": "Langue",
   "footer.copyright": "© {year} Steven Leslie",
-  "resume.downloadResumePdf": "CV (PDF)",
-  "resume.downloadWritingSamples": "Textes d'exemple"
+  "resume.pdfLabel": "CV (PDF)",
+  "resume.writingSamplesLabel": "Exemples de rédaction"
 }
