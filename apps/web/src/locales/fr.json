@@ -12,5 +12,7 @@
   "nav.social.github": "GitHub",
   "nav.social.linkedin": "LinkedIn",
   "lang.switcher": "Langue",
-  "footer.copyright": "© {year} Steven Leslie"
+  "footer.copyright": "© {year} Steven Leslie",
+  "resume.pdfLabel": "CV (PDF)",
+  "resume.writingSamplesLabel": "Exemples de rédaction"
 }

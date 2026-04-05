@@ -122,11 +122,18 @@ function collectPagesForLocale(locale) {
 
 function discoverLocales() {
   const locales = ['en'];
-  const frDir = join(LOCALE_ROOT, 'fr');
-  if (existsSync(frDir)) {
-    locales.push('fr');
+  if (!existsSync(LOCALE_ROOT)) {
+    return locales;
   }
-  return locales;
+  const extra = readdirSync(LOCALE_ROOT, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .filter((name) => {
+      const home = join(LOCALE_ROOT, name, 'home.md');
+      return existsSync(home);
+    })
+    .sort();
+  return [...locales, ...extra];
 }
 
 /**

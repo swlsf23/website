@@ -13,10 +13,10 @@
  *   npm run resume:pdf:writing
  * French resume (same pipeline; `<!-- resume-contact -->` uses content/locale/fr/contact.md):
  *   (included in `resume:pdf:all`)
- * All default PDFs in one run (one browser): EN resume, FR resume, writing samples
+ * All default PDFs in one run (one browser): EN resume, each locale resume-*.pdf, writing samples
  *   npm run resume:pdf:all
  */
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -29,27 +29,42 @@ const { marked } = require('marked');
 
 /** @typedef {{ src: string, out: string, lang?: string }} PdfJob */
 
-/** @type {PdfJob[]} */
-const DEFAULT_JOBS = [
-  {
-    src: join(ROOT, 'content/site/resume.md'),
-    out: join(ROOT, 'apps/web/public/resume.pdf'),
-    lang: 'en',
-  },
-  {
-    src: join(ROOT, 'content/locale/fr/resume.md'),
-    out: join(ROOT, 'apps/web/public/resume-fr.pdf'),
-    lang: 'fr',
-  },
-  {
+function buildDefaultPdfJobs() {
+  /** @type {PdfJob[]} */
+  const jobs = [
+    {
+      src: join(ROOT, 'content/site/resume.md'),
+      out: join(ROOT, 'apps/web/public/resume.pdf'),
+      lang: 'en',
+    },
+  ];
+  const localeRoot = join(ROOT, 'content/locale');
+  if (existsSync(localeRoot)) {
+    for (const ent of readdirSync(localeRoot, { withFileTypes: true })) {
+      if (!ent.isDirectory()) continue;
+      const loc = ent.name;
+      const resumeMd = join(localeRoot, loc, 'resume.md');
+      if (existsSync(resumeMd)) {
+        jobs.push({
+          src: resumeMd,
+          out: join(ROOT, 'apps/web/public', `resume-${loc}.pdf`),
+          lang: loc,
+        });
+      }
+    }
+  }
+  jobs.push({
     src: join(ROOT, 'content/site/writing-samples.md'),
     out: join(ROOT, 'apps/web/public/writing-samples.pdf'),
     lang: 'en',
-  },
-];
+  });
+  return jobs;
+}
+
+/** @type {PdfJob[]} */
+const DEFAULT_JOBS = buildDefaultPdfJobs();
 
 const CONTACT = join(ROOT, 'content/site/contact.md');
-const CONTACT_FR = join(ROOT, 'content/locale/fr/contact.md');
 const CONTACT_LEGACY = join(ROOT, 'content/site/resume.contact.local.md');
 const CSS = join(ROOT, 'scripts/resume-print.css');
 
@@ -140,10 +155,14 @@ function contactMarkdownFromEnvOrEnFiles() {
   return '';
 }
 
-/** Contact body for `<!-- resume-contact -->`: FR PDF uses locale file when present. */
+/** Contact body for `<!-- resume-contact -->`: locale PDF uses `content/locale/<lang>/contact.md` when present. */
 function contactMarkdownForLocale(lang) {
-  if (lang === 'fr' && existsSync(CONTACT_FR)) {
-    return stripYamlFrontmatter(readFileSync(CONTACT_FR, 'utf8'));
+  if (lang === 'en') {
+    return contactMarkdownFromEnvOrEnFiles();
+  }
+  const localized = join(ROOT, 'content/locale', lang, 'contact.md');
+  if (existsSync(localized)) {
+    return stripYamlFrontmatter(readFileSync(localized, 'utf8'));
   }
   return contactMarkdownFromEnvOrEnFiles();
 }
@@ -182,7 +201,7 @@ async function renderPdf(browser, { src, out, lang = 'en' }) {
   marked.setOptions({ gfm: true, breaks: false });
   const bodyHtml = buildBodyHtml(mdRaw, lang);
   const cssText = `${interFontFaceCssForPdf()}\n${readFileSync(CSS, 'utf8')}`;
-  const htmlLang = lang === 'fr' ? 'fr' : 'en';
+  const htmlLang = lang === 'en' ? 'en' : lang;
   const html = `<!DOCTYPE html><html lang="${htmlLang}"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
 
   const page = await browser.newPage();

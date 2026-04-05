@@ -1,0 +1,18 @@
+{
+  "contact.title": "Contato",
+  "contact.beforeLink": "A melhor forma de entrar em contato comigo é no ",
+  "contact.afterLink": ".",
+  "contact.linkedinLabel": "LinkedIn",
+  "site.brand": "Steven Leslie",
+  "nav.primary": "Principal",
+  "nav.about": "Sobre mim",
+  "nav.resume": "Currículo",
+  "nav.projects": "Projetos",
+  "nav.contact": "Contato",
+  "nav.social.github": "GitHub",
+  "nav.social.linkedin": "LinkedIn",
+  "lang.switcher": "Idioma",
+  "footer.copyright": "© {year} Steven Leslie",
+  "resume.pdfLabel": "Currículo PDF",
+  "resume.writingSamplesLabel": "Amostras de escrita"
+}
