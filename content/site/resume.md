@@ -7,15 +7,13 @@ title: Resume
 
 <!-- resume-contact -->
 
-Product & developer content · Doc tooling & infrastructure · AI-assisted workflows · User-focused, feedback-driven
+## Summary {#section-professional-summary}
 
-## Professional summary {#section-professional-summary}
+I help engineering teams ship better products by turning complex systems into clear, usable documentation developers rely on.
 
-I'm a technical writer with extensive experience managing and creating documentation for enterprise SaaS and PaaS, data platforms, APIs, connectors, and data pipelines, including admin and developer workflows.
+At Snowflake and Salesforce, I’ve led documentation strategy for APIs, data platforms, and developer workflows, improving clarity, reducing friction, and ensuring release readiness in fast-moving environments.
 
-I've implemented and managed a documentation site and build infrastructure using AsciiDoc and Markdown in a docs-as-code pipeline. I've set up and managed GitHub and Jira for doc team workflows, sprint coordination, and documentation releases.
-
-I integrate Cursor and LLMs in my writing and review workflows to create and maintain documentation and code examples. I use these tools to assist me in preserving technical accuracy and consistency of content, while guarding against hallucination risk.
+I build docs-as-code systems, integrate AI into content workflows with strong quality controls, and partner closely with engineering and product to make documentation part of the product experience.
 
 ## Experience {#section-experience}
 
@@ -25,27 +23,25 @@ I integrate Cursor and LLMs in my writing and review workflows to create and mai
 
 San Francisco, California, United States · On-site
 
-- **Snowflake Openflow** — Doc content and strategy lead. Wrote and planned content for data engineers and Snowflake administrators. Covered architecture, connectors, security, and platform/deployment.
+- Acted as the documentation lead for a ~60-engineer product area, owning content strategy and delivery for APIs, CLI, and deployment workflows for developers, data engineers, and platform administrators
+- Scaled documentation to keep pace with rapid feature development, providing clear guidance for APIs, CLI usage, and deployment workflows as they evolved
+- Established AI-assisted documentation workflows using Cursor and custom agents, introducing guardrails to maintain accuracy and consistency across generated content
+- Embedded with engineering and product to drive release readiness, influencing documentation scope and ensuring alignment before launch
+- Expanded documentation coverage across new product areas including SQL API, Streamlit, and connectors, enabling adoption of new capabilities
 
-- **Snowflake Native Apps** — Doc content and strategy lead. Wrote and planned content for developers, including Snowflake CLI and API references and guides. Wrote tutorials for developers learning the Native Apps development workflow, from setup through deployment.
-
-- Created initial content for other Snowflake products, including Snowflake SQL API (REST), Streamlit in Snowflake (Python), and multiple connectors (JDBC, Python, SAP, etc.).
-
-- Authored in a docs-as-code pipeline using Cursor and multiple AI agents. Created agent rules for Snowflake and my product areas to maintain technical accuracy and consistency. Contributed to the team's effort to incorporate AI into the documentation process.
-
-- Partnered with engineering and product management to define documentation scope, improve developer workflows, and ensure release readiness.
-
-### Staff technical writer — Salesforce
+### Staff technical writer — Salesforce (MuleSoft)
 
 *Full-time · Jun 2018 – May 2021 · 3 yrs*
 
 San Francisco Bay Area · On-site
 
-- Staff technical writer and documentation infrastructure lead for the **MuleSoft** product line. Managed documentation infrastructure, OSS and private GitHub documentation repositories, and the Jira project for the documentation team. Updated infrastructure as Salesforce requirements changed (e.g. infrastructure as code, Terraform).
-
-- Supervised a contract developer and UX designer to improve site navigation and UI, including a filterable landing page for 120+ connectors. Implemented a Japanese version of the site and developed the localization workflow.
-
-- Created and maintained documentation for API management and monitoring tools and the on-premises version of MuleSoft’s platform based on Kubernetes.
+- Acted as documentation infrastructure lead, owning systems and workflows that supported the documentation team
+- Built and maintained a docs-as-code platform using GitHub, CI/CD, and Terraform, improving publishing reliability and team velocity
+- Defined documentation workflows for sprint planning, content updates, and releases, introducing structure and consistency to team operations
+- Partnered with engineering teams to align documentation with rapidly evolving APIs, connectors, and platform features
+- Led UX improvements including a filterable navigation system for 120+ connectors that improved discoverability
+- Launched localization infrastructure and a Japanese documentation site
+- Wrote documentation across multiple product areas, including APIs, connectors, and platform features
 
 ### Senior technical writer — MuleSoft (acquired by Salesforce)
 
@@ -53,9 +49,10 @@ San Francisco Bay Area · On-site
 
 San Francisco Bay Area · On-site
 
-- Lead for documentation infrastructure and tools. Worked with a contract programmer, the documentation team, and DevOps to move **docs.mulesoft.com** to a docs-as-code platform. Managed source control and the build process using GitHub, Antora, Jenkins, and AWS.
-
-- Developed and maintained developer and API documentation across multiple product areas, including API management, connectors, and on-premises versions of the MuleSoft platform.
+- Led implementation of docs-as-code infrastructure, partnering with a contract developer to build CI/CD publishing pipelines using GitHub, Antora, Jenkins, and AWS
+- Established GitHub and Jira workflows from scratch, introducing branch protection, sprint planning, and structured release processes
+- Defined build and release processes, improving consistency and reducing publishing errors
+- Produced developer and API documentation across multiple product areas, working directly with engineers to document evolving systems
 
 ### Senior technical writer — Pivotal Software, Inc.
 
@@ -63,7 +60,9 @@ San Francisco Bay Area · On-site
 
 San Francisco · On-site
 
-- Created and updated administrator and developer content for Pivotal Cloud Foundry and Cloud Foundry (OSS) platforms. Edited and revised content provided by product managers and third-party contributors in an extreme agile environment.
+- Contributed across the Cloud Foundry platform in a fast-moving environment without fixed ownership, adapting to shifting priorities and ambiguous scope
+- Partnered with engineers and product managers through pair writing, working directly from source code and in-progress features under tight timelines
+- Maintained clarity and consistency across rapidly changing, multi-author content
 
 ### Senior technical writer — NetSuite (acquired by Oracle)
 
@@ -71,7 +70,8 @@ San Francisco · On-site
 
 Austin, TX · Remote
 
-- Created developer documentation for NetSuite's e-commerce web application. Developed architectural overview and best practice documentation for customizing the core application. Developed architectural overview and customization best practice documentation.
+- Owned all developer documentation for an e-commerce product area as the sole writer
+- Authored architectural overviews and best practices for scalable, maintainable integrations
 
 ### Senior technical writer — Oracle
 
@@ -79,7 +79,9 @@ Austin, TX · Remote
 
 Buenos Aires, Argentina · On-site
 
-- Lead writer for Oracle's BPM product. Tracked features, created schedules and project plans. Wrote a user's guide for a web-based BPM editing and management tool. Contributed to other areas as needed.
+- Acted as lead writer for a BPM product area, managing documentation planning, scope, and delivery across guides and API references
+- Coordinated two additional writers to align documentation with product releases
+- Produced developer, user, and API documentation for enterprise BPM tooling
 
 ### Senior technical writer — BEA Systems (acquired by Oracle)
 
@@ -87,7 +89,8 @@ Buenos Aires, Argentina · On-site
 
 San Francisco Bay Area / Buenos Aires, Argentina · On-site
 
-- Maintained and wrote new sections of WebLogic Server's clustering, failover, and migration documentation. Created Javadocs and code examples.
+- Developed clustering, failover, and migration documentation for WebLogic Server
+- Created Javadocs and code examples for developer implementation
 
 ### Senior technical writer — Plumtree Software (acquired by BEA Systems)
 
@@ -95,7 +98,7 @@ San Francisco Bay Area / Buenos Aires, Argentina · On-site
 
 San Francisco Bay Area · On-site
 
-- Wrote installation, administration, and configuration guides for Plumtree’s collaboration management and usage tracking applications.
+- Delivered installation, administration, and configuration guides for enterprise collaboration software
 
 ## Education {#section-education}
 

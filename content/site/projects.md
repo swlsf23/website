@@ -7,7 +7,7 @@ These are projects I built and maintain, with links to live sites and source cod
 
 ## Personal website
 
-Client-side React app with Markdown-authored content generated at build time. This project demonstrates my ability to use the following technologies:
+This is a personal project where I built and maintain this site, including infrastructure, CI/CD, web app, and PDF generation.
 
 | Layer | Details |
 | --- | --- |
@@ -22,8 +22,4 @@ For details on how I implemented these technologies, see the GitHub repo.
 
 ## More to come
 
-I have additional portfolio projects in the pipeline, including:
-
-- A doc site infrastructure that implements AI in the doc production workflow.
-- Data visualization projects.
-- Language learning tools that leverage LLMs.
+I’m working on additional projects in this space.
