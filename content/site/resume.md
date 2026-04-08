@@ -23,11 +23,17 @@ I build docs-as-code systems, integrate AI into content workflows with strong qu
 
 San Francisco, California, United States · On-site
 
-- Acted as the documentation lead for a ~60-engineer product area, owning content strategy and delivery for APIs, CLI, and deployment workflows for developers, data engineers, and platform administrators
-- Scaled documentation to keep pace with rapid feature development, providing clear guidance for APIs, CLI usage, and deployment workflows as they evolved
-- Established AI-assisted documentation workflows using Cursor and custom agents, introducing guardrails to maintain accuracy and consistency across generated content
-- Embedded with engineering and product to drive release readiness, influencing documentation scope and ensuring alignment before launch
-- Expanded documentation coverage across new product areas including SQL API, Streamlit, and connectors, enabling adoption of new capabilities
+- Owned documentation strategy and delivery across multiple product areas, ensuring documentation kept pace with ongoing feature development and releases.
+
+- Authored API, CLI, SQL reference, deployment, and configuration documentation for these product areas.
+
+- Established AI-assisted documentation workflows (Cursor + custom agents), with guardrails and review processes to maintain accuracy and consistency as content scaled.
+
+- Managed documentation deliverables across products with overlapping release timelines and competing priorities.
+
+- Defined documentation scope, scheduling, and release readiness in partnership with engineering and product, ensuring documentation was complete and aligned at launch.
+
+- Developed onboarding tutorials enabling developers to complete initial setup and core tasks in ~1 hour.
 
 ### Staff technical writer — Salesforce (MuleSoft)
 
@@ -35,13 +41,19 @@ San Francisco, California, United States · On-site
 
 San Francisco Bay Area · On-site
 
-- Acted as documentation infrastructure lead, owning systems and workflows that supported the documentation team
+- Led documentation infrastructure, owning systems and workflows that supported the documentation team
+
 - Built and maintained a docs-as-code platform using GitHub, CI/CD, and Terraform, improving publishing reliability and team velocity
-- Defined documentation workflows for sprint planning, content updates, and releases, introducing structure and consistency to team operations
-- Partnered with engineering teams to align documentation with rapidly evolving APIs, connectors, and platform features
-- Led UX improvements including a filterable navigation system for 120+ connectors that improved discoverability
+
+- Defined documentation workflows for sprint planning, content updates, and releases, introducing structure and consistency
+
+- Led UX improvements, including a filterable navigation system for 120+ connectors that improved discoverability
+
 - Launched localization infrastructure and a Japanese documentation site
-- Wrote documentation across multiple product areas, including APIs, connectors, and platform features
+
+- Partnered with engineering teams to align documentation with rapidly evolving APIs, connectors, and platform features
+
+- Wrote documentation across APIs, connectors, and platform features
 
 ### Senior technical writer — MuleSoft (acquired by Salesforce)
 
