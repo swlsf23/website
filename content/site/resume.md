@@ -74,7 +74,6 @@ San Francisco · On-site
 
 - Contributed across the Cloud Foundry platform in a fast-moving environment without fixed ownership, adapting to shifting priorities and ambiguous scope
 - Partnered with engineers and product managers through pair writing, working directly from source code and in-progress features under tight timelines
-- Maintained clarity and consistency across rapidly changing, multi-author content
 
 ### Senior technical writer — NetSuite (acquired by Oracle)
 
