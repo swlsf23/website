@@ -54,14 +54,14 @@ Use the same `AWS_PROFILE` for Terraform and for **`./manage-site.sh site-deploy
 
 ### Common profile for this workspace
 
-If you pressed Enter at the **`aws configure sso`** profile prompt, the CLI often created a profile named `AdministratorAccess-<account-id>`. For account `136861976157` that is:
+If you pressed Enter at the **`aws configure sso`** profile prompt, the CLI often created a profile named `AdministratorAccess-<account-id>` (your 12-digit account id). Use that exact name, or whatever name you chose (e.g. `website-terraform`):
 
 ```bash
-export AWS_PROFILE=AdministratorAccess-136861976157
+export AWS_PROFILE=AdministratorAccess-<your-account-id>
 aws sso login
 ```
 
-Use that in any terminal where you run **`terraform`** in `infra/terraform` or **`./manage-site.sh`**. Substitute your profile name if you chose something else (e.g. `website-terraform`).
+Use that in any terminal where you run **`terraform`** in `infra/terraform` or **`./manage-site.sh`**. Run `aws configure list-profiles` if you are unsure of the name.
 
 **Cost:** IAM Identity Center is **no additional charge** for standard workforce use; you still pay for **resources** (S3, CloudFront, transfer, etc.).
 

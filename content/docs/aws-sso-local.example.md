@@ -27,10 +27,10 @@ aws sso login
 aws sts get-caller-identity
 ```
 
-If you pressed **Enter** at **Profile name** and accepted `AdministratorAccess-<accountid>`, use that name instead (this repo documents **`AdministratorAccess-136861976157`** in [`aws-auth-and-deploy.md`](aws-auth-and-deploy.md) and the root **`manage-site.sh`** script):
+If you pressed **Enter** at **Profile name** and accepted `AdministratorAccess-<account-id>`, use that exact name (see `aws configure list-profiles`):
 
 ```bash
-export AWS_PROFILE=AdministratorAccess-136861976157
+export AWS_PROFILE=AdministratorAccess-<your-account-id>
 aws sso login
 ```
 

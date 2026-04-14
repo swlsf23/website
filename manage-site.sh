@@ -5,15 +5,20 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 TF_DIR="$ROOT/infra/terraform"
 WEB_DIR="$ROOT/apps/web"
-# Override with AWS_PROFILE in the environment if you use a different SSO profile.
-DEFAULT_AWS_PROFILE="${DEFAULT_AWS_PROFILE:-AdministratorAccess-136861976157}"
-
+# Set AWS_PROFILE (or DEFAULT_AWS_PROFILE) to your SSO profile from ~/.aws/config — no account id in-repo.
 ensure_aws_sso() {
   command -v aws >/dev/null 2>&1 || {
     echo "aws CLI not found (needed for SSO login)." >&2
     exit 1
   }
-  export AWS_PROFILE="${AWS_PROFILE:-$DEFAULT_AWS_PROFILE}"
+  if [[ -n "${AWS_PROFILE:-}" ]]; then
+    :
+  elif [[ -n "${DEFAULT_AWS_PROFILE:-}" ]]; then
+    export AWS_PROFILE="$DEFAULT_AWS_PROFILE"
+  else
+    echo "Set AWS_PROFILE (or DEFAULT_AWS_PROFILE) to your SSO profile. See content/docs/aws-sso-local.example.md." >&2
+    exit 1
+  fi
   aws sso login
 }
 
@@ -29,7 +34,7 @@ Usage: ./manage-site.sh <command>
 
 Deploy reads SPA_S3_BUCKET, CLOUDFRONT_DISTRIBUTION_ID, AWS_REGION if set; else terraform output.
 
-Before Terraform / deploy: runs aws sso login (default profile AdministratorAccess-136861976157; set AWS_PROFILE to override).
+Before Terraform / deploy: runs aws sso login (requires AWS_PROFILE or DEFAULT_AWS_PROFILE).
 EOF
 }
 
