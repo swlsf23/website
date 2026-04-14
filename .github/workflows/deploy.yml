@@ -1,4 +1,4 @@
-# Deploys the SPA to S3 + CloudFront on push to main (same as ./manage-site.sh site-build + site-deploy).
+# Deploys the SPA to S3 + CloudFront on push to main (same pipeline as ./manage-site.sh site-deploy: build then upload).
 #
 # GitHub repository secrets:
 #   AWS_ROLE_ARN — IAM role ARN from Terraform output github_actions_deploy_role_arn (OIDC).

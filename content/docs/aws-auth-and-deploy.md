@@ -12,7 +12,7 @@ This document records how this repo is meant to be used with AWS: **who logs in 
 |------|------|
 | **Terraform** (`infra/terraform`) | Creates **S3** + **CloudFront** (and related IAM/OAC). Uses the AWS API via the Terraform AWS provider. **Does not** invoke the `aws` CLI binary. |
 | **AWS CLI** (`aws`) | **SSO** / credentials (`aws configure sso`, `aws sso login`) and **deploy** (`aws s3 sync`, `aws cloudfront create-invalidation`) via **[`manage-site.sh`](../../manage-site.sh)**. |
-| **`manage-site.sh`** | Repo-root wrapper: **`infra-create`** / **`infra-destroy`** / **`infra-import-bucket`** (Terraform), **`site-build`** (npm + PDFs + Vite), **`site-deploy`** (sync `dist/` + invalidate CloudFront). |
+| **`manage-site.sh`** | Repo-root wrapper: **`infra-create`** / **`infra-destroy`** / **`infra-import-bucket`** (Terraform), **`site-build`** (npm + PDFs + Vite), **`site-deploy`** (runs **`site-build`** then sync `dist/` + invalidate CloudFront; sources **`~/.config/website/env.sh`** if present; `SITE_DEPLOY_SKIP_BUILD=1` skips rebuild). |
 
 Everything needs **valid AWS credentials** in the environment (files or env vars). Terraform and the AWS CLI share the **same credential chain** (including `AWS_PROFILE`).
 
@@ -91,17 +91,19 @@ terraform apply
 
 **Destroy:** **`./manage-site.sh infra-destroy`** asks you to type **`yes`**, then runs **`terraform destroy`** in `infra/terraform` (Terraform prompts again before applying). The SPA bucket has **`force_destroy = true`** and **`versioning` suspended** so Terraform can remove objects and the bucket.
 
-After recreate, **outputs change** (e.g. CloudFront distribution ID). `site-deploy` reads **`terraform output`** if `SPA_S3_BUCKET` / `CLOUDFRONT_DISTRIBUTION_ID` are unset.
+After recreate, **outputs change** (e.g. CloudFront distribution ID). `site-deploy` uses **`SPA_S3_BUCKET`** / **`CLOUDFRONT_DISTRIBUTION_ID`** from the environment, from **`~/.config/website/env.sh`** (sourced automatically if that file exists), or else **`terraform output`** when **`infra/terraform/.terraform`** exists.
 
 ---
 
 ## Deploy the site bundle
 
-From repo root (after `export AWS_PROFILE=...` and `aws sso login` if using SSO):
+From repo root (after `export AWS_PROFILE=...` and `aws sso login` if using SSO). Put **`SPA_S3_BUCKET`** and **`CLOUDFRONT_DISTRIBUTION_ID`** in **`~/.config/website/env.sh`** (not in git) so `site-deploy` picks them up automatically.
 
 ```bash
-./manage-site.sh site-build
 ./manage-site.sh site-deploy
+# runs a full site-build first, then uploads dist/ and invalidates CloudFront
+# Build only (no upload): ./manage-site.sh site-build
+# Upload existing dist without rebuilding: SITE_DEPLOY_SKIP_BUILD=1 ./manage-site.sh site-deploy
 ```
 
 ---

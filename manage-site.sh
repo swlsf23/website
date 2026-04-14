@@ -5,6 +5,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 TF_DIR="$ROOT/infra/terraform"
 WEB_DIR="$ROOT/apps/web"
+
+# site-deploy: load local exports (AWS_PROFILE, SPA_S3_BUCKET, …) if this file exists. Override path with MANAGE_SITE_ENV_FILE.
+maybe_source_local_env() {
+  local f="${MANAGE_SITE_ENV_FILE:-$HOME/.config/website/env.sh}"
+  if [[ -f "$f" ]]; then
+    # shellcheck source=/dev/null
+    source "$f"
+  fi
+}
+
 # Set AWS_PROFILE (or DEFAULT_AWS_PROFILE) to your SSO profile from ~/.aws/config — no account id in-repo.
 ensure_aws_sso() {
   command -v aws >/dev/null 2>&1 || {
@@ -29,10 +39,12 @@ Usage: ./manage-site.sh <command>
   infra-create         terraform init (if needed) + terraform apply
   infra-destroy        type yes to confirm, then terraform destroy
   infra-import-bucket  terraform import aws_s3_bucket.spa (if apply fails with BucketAlreadyExists)
-  site-build           npm ci, Playwright PDFs, npm run build:site → apps/web/dist
-  site-deploy          aws s3 sync dist/ to bucket + CloudFront invalidation (needs AWS CLI)
+  site-build           npm ci, Playwright PDFs, npm run build:site → apps/web/dist (sanity-check / iterate without deploy)
+  site-deploy          runs site-build first, then S3 sync + CloudFront invalidation (AWS CLI)
+                       SITE_DEPLOY_SKIP_BUILD=1 to upload existing apps/web/dist only.
+                       Sources ~/.config/website/env.sh if present (override: MANAGE_SITE_ENV_FILE).
 
-Deploy reads SPA_S3_BUCKET, CLOUDFRONT_DISTRIBUTION_ID, AWS_REGION if set; else terraform output.
+Deploy needs SPA_S3_BUCKET and CLOUDFRONT_DISTRIBUTION_ID (env or ~/.config/website/env.sh), or terraform output from infra/terraform.
 
 Before Terraform / deploy: runs aws sso login (requires AWS_PROFILE or DEFAULT_AWS_PROFILE).
 EOF
@@ -80,11 +92,20 @@ resolve_deploy_env() {
     return 0
   fi
   if [[ ! -d "$TF_DIR/.terraform" ]]; then
-    echo "Set SPA_S3_BUCKET and CLOUDFRONT_DISTRIBUTION_ID, or run terraform init in infra/terraform." >&2
+    echo "Deploy target not configured: SPA_S3_BUCKET and CLOUDFRONT_DISTRIBUTION_ID are unset." >&2
+    echo "Set both (e.g. export SPA_S3_BUCKET=your-bucket CLOUDFRONT_DISTRIBUTION_ID=E123...)." >&2
+    echo "Tip: put them in ~/.config/website/env.sh — site-deploy sources that file automatically if it exists" >&2
+    echo "(override path with MANAGE_SITE_ENV_FILE). Or install Terraform and run terraform init in infra/terraform." >&2
     return 1
   fi
-  SPA_S3_BUCKET="${SPA_S3_BUCKET:-$(tf_output_raw spa_bucket_name)}" || return 1
-  CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-$(tf_output_raw cloudfront_distribution_id)}" || return 1
+  SPA_S3_BUCKET="${SPA_S3_BUCKET:-$(tf_output_raw spa_bucket_name)}" || {
+    echo "Could not read spa_bucket_name from terraform output. Check infra/terraform state and terraform init." >&2
+    return 1
+  }
+  CLOUDFRONT_DISTRIBUTION_ID="${CLOUDFRONT_DISTRIBUTION_ID:-$(tf_output_raw cloudfront_distribution_id)}" || {
+    echo "Could not read cloudfront_distribution_id from terraform output. Check infra/terraform state and terraform init." >&2
+    return 1
+  }
   export SPA_S3_BUCKET CLOUDFRONT_DISTRIBUTION_ID
   echo "Using bucket=$SPA_S3_BUCKET distribution=$CLOUDFRONT_DISTRIBUTION_ID region=$AWS_REGION" >&2
 }
@@ -141,12 +162,15 @@ cmd_site_build() {
 }
 
 cmd_site_deploy() {
-  ensure_aws_sso
-  resolve_deploy_env
-  if [[ ! -d "$WEB_DIR/dist" ]]; then
-    echo "Missing $WEB_DIR/dist — run: ./manage-site.sh site-build" >&2
+  maybe_source_local_env
+  if [[ "${SITE_DEPLOY_SKIP_BUILD:-}" != "1" ]]; then
+    cmd_site_build
+  elif [[ ! -d "$WEB_DIR/dist" ]]; then
+    echo "Missing $WEB_DIR/dist — run ./manage-site.sh site-build or deploy without SITE_DEPLOY_SKIP_BUILD=1." >&2
     exit 1
   fi
+  ensure_aws_sso
+  resolve_deploy_env
   command -v aws >/dev/null 2>&1 || {
     echo "aws CLI not found" >&2
     exit 1

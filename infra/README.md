@@ -49,8 +49,10 @@ In `terraform.tfvars`, set `custom_domain_aliases` and `route53_zone_ids` (apex 
 From the **repository root**, with **`export AWS_PROFILE=…`** and **`aws sso login`** as in Prerequisites:
 
 ```bash
-./manage-site.sh site-build    # npm ci, PDFs, vite build → apps/web/dist
-./manage-site.sh site-deploy   # aws s3 sync + CloudFront invalidation (uses terraform output if env vars unset)
+./manage-site.sh site-build    # optional: verify production build locally → apps/web/dist
+./manage-site.sh site-deploy   # runs site-build first, then S3 sync + CloudFront invalidation
+                               # SPA_S3_BUCKET + CLOUDFRONT_DISTRIBUTION_ID: env, ~/.config/website/env.sh (auto-sourced), or terraform output
+                               # SITE_DEPLOY_SKIP_BUILD=1 to upload existing dist only
 ```
 
 ## CI/CD (GitHub Actions)
