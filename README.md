@@ -32,9 +32,20 @@ The Markdown sources for the public pages are under **`content/site/`**.
 
 ## Version history
 
-- **2.1.0** — Spanish and Portuguese locales (`content/locale/es`, `content/locale/pt`) and dynamic locale discovery in `generate-site-content.mjs`. Footer row: copyright plus language dropdown (EN / FR / ES / PT) with control styling aligned to primary buttons (6px radius). Resume sidebar: **Resume PDF** always points to `/resume.pdf` in every locale; **Writing samples** points to `/writing-samples.pdf`. Per-locale `resume-*.pdf` files are still produced in the Playwright pipeline for offline or other uses. Dynamic SEO (`html lang`, `hreflang`, canonical URLs) is still planned (see `.cursor/plans/v2_0_0_localization.plan.md`).
+### 2.1.0
 
-- **2.0.0** — Locale-prefixed routes (`/en/…`, `/fr/…`), French Markdown under `content/locale/fr/`, per-locale UI strings, stable resume section anchors, and a French resume PDF (`resume-fr.pdf`) from the Playwright pipeline. Locales are added by mirroring English page slugs under `content/locale/<code>/` with `home.md`, `projects.md`, `resume.md`, and `contact.md` for the resume PDF merge.
+- Spanish and Portuguese locales (`content/locale/es`, `content/locale/pt`) and dynamic locale discovery in `generate-site-content.mjs`.
+- Footer row: copyright plus language dropdown (EN / FR / ES / PT) with control styling aligned to primary buttons (6px radius).
+- Resume sidebar: **Resume PDF** always points to `/resume.pdf` in every locale; **Writing samples** points to `/writing-samples.pdf`.
+- Per-locale `resume-*.pdf` files are still produced in the Playwright pipeline for offline or other uses.
+- Dynamic SEO (`html lang`, `hreflang`, canonical URLs) is still planned (see `.cursor/plans/v2_0_0_localization.plan.md`).
+
+### 2.0.0
+
+- Locale-prefixed routes (`/en/…`, `/fr/…`).
+- French Markdown under `content/locale/fr/`, per-locale UI strings, and stable resume section anchors.
+- French resume PDF (`resume-fr.pdf`) from the Playwright pipeline.
+- Locales are added by mirroring English page slugs under `content/locale/<code>/` with `home.md`, `projects.md`, `resume.md`, and `contact.md` for the resume PDF merge.
 
 ### 1.0.0
 
