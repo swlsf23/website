@@ -219,12 +219,12 @@ async function renderPdf(browser, { src, out, lang = 'en' }) {
   const html = `<!DOCTYPE html><html lang="${htmlLang}"><head><meta charset="utf-8"><style>${cssText}</style></head><body>${bodyHtml}</body></html>`;
 
   const page = await browser.newPage();
-  await page.emulateMedia({ media: 'print' });
+  // Load fonts under screen; print media can defer or skip some @font-face loading in headless Chromium.
   await page.setContent(html, { waitUntil: 'load' });
-  // Headless Chromium can rasterize PDF before @font-face files finish loading; Inter then falls back to a system font.
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
+  await page.emulateMedia({ media: 'print' });
   mkdirSync(dirname(out), { recursive: true });
   await page.pdf({
     path: out,
