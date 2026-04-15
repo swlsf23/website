@@ -19,7 +19,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -85,13 +85,25 @@ const INTER_SUBSET_CSS = [
   'latin-ext-700-italic.css',
 ];
 
+/**
+ * Inline Inter as data URLs so @font-face does not rely on file:// resolution inside
+ * page.setContent (unreliable on Linux headless Chromium vs macOS).
+ */
 function interFontFaceCssForPdf() {
   const interRoot = dirname(require.resolve('@fontsource/inter/package.json'));
-  const filesBaseUrl = pathToFileURL(join(interRoot, 'files')).href + '/';
   return INTER_SUBSET_CSS.map((name) => {
     const abs = join(interRoot, name);
-    const raw = readFileSync(abs, 'utf8');
-    return raw.replace(/\.\/files\//g, filesBaseUrl);
+    let raw = readFileSync(abs, 'utf8');
+    return raw.replace(/\.\/files\/([^\s)'"]+)/g, (_, file) => {
+      const fontPath = join(interRoot, 'files', file);
+      const buf = readFileSync(fontPath);
+      const mime = file.endsWith('.woff2')
+        ? 'font/woff2'
+        : file.endsWith('.woff')
+          ? 'font/woff'
+          : 'application/octet-stream';
+      return `url(data:${mime};base64,${buf.toString('base64')})`;
+    });
   }).join('\n');
 }
 
