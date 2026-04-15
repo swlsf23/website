@@ -15,9 +15,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Only the latest run should upload: if cancel-in-progress is false, a slow older job can finish
+# after a newer one and overwrite S3 with a stale build (looks like "CI deploys old version").
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: read
